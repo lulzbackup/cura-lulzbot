@@ -2,7 +2,7 @@
 # Cura is released under the terms of the AGPLv3 or higher.
 
 from UM.Signal import Signal, signalemitter
-from . import USBPrinterOutputDevice
+from .USBPrinterOutputDevice import USBPrinterOutputDevice
 from UM.Application import Application
 from UM.Resources import Resources
 from UM.Logger import Logger
@@ -207,38 +207,29 @@ class USBPrinterOutputDeviceManager(QObject, OutputDevicePlugin, Extension):
 
     ##  Helper to identify serial ports (and scan for them)
     def _addRemovePorts(self, serial_ports):
-        # First, find and add all new or changed keys
-        for serial_port in list(serial_ports):
-            if serial_port not in self._serial_port_list:
-                self.addUSBOutputDeviceSignal.emit(serial_port)  # Hack to ensure its created in main thread
-                continue
-        self._serial_port_list = list(serial_ports)
-
-        devices_to_remove = []
-        for port, device in self._usb_output_devices.items():
-            if port not in self._serial_port_list:
+        if len(self._serial_port_list) == 0 and len(serial_ports) > 0:
+            # Hack to ensure its created in main thread
+            self.addUSBOutputDeviceSignal.emit(USBPrinterOutputDevice.SERIAL_AUTODETECT_PORT)
+        elif len(serial_ports) == 0:
+            for port, device in self._usb_output_devices.items():
                 device.close()
-                devices_to_remove.append(port)
-
-        for port in devices_to_remove:
-            del self._usb_output_devices[port]
+            self._usb_output_devices = {}
+            self.getOutputDeviceManager().removeOutputDevice(USBPrinterOutputDevice.SERIAL_AUTODETECT_PORT)
+        self._serial_port_list = list(serial_ports)
 
     ##  Because the model needs to be created in the same thread as the QMLEngine, we use a signal.
     def addOutputDevice(self, serial_port):
-        device = USBPrinterOutputDevice.USBPrinterOutputDevice(serial_port)
+        device = USBPrinterOutputDevice(serial_port)
         device.connectionStateChanged.connect(self._onConnectionStateChanged)
-        device.connect()
+        #device.connect()
         device.progressChanged.connect(self.progressChanged)
         device.firmwareUpdateChange.connect(self.firmwareUpdateChange)
         self._usb_output_devices[serial_port] = device
+        self.getOutputDeviceManager().addOutputDevice(device)
 
     ##  If one of the states of the connected devices change, we might need to add / remove them from the global list.
     def _onConnectionStateChanged(self, serial_port):
         try:
-            if self._usb_output_devices[serial_port].connectionState == ConnectionState.connected:
-                self.getOutputDeviceManager().addOutputDevice(self._usb_output_devices[serial_port])
-            else:
-                self.getOutputDeviceManager().removeOutputDevice(serial_port)
             self.connectionStateChanged.emit()
         except KeyError:
             pass  # no output device by this device_id found in connection list.
