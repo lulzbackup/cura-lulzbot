@@ -29,7 +29,12 @@ class USBPrinterOutputDevice(PrinterOutputDevice):
         self.setShortDescription(catalog.i18nc("@action:button", "Print via USB"))
         self.setDescription(catalog.i18nc("@info:tooltip", "Print via USB"))
         self.setIconName("print")
-        self.setConnectionText(catalog.i18nc("@info:status", "Connected via USB"))
+        self._autodetect_port = (serial_port == USBPrinterOutputDevice.SERIAL_AUTODETECT_PORT)
+        if self._autodetect_port:
+            serial_port = None
+            self.setConnectionText(catalog.i18nc("@info:status", "USB device available"))
+        else:
+            self.setConnectionText(catalog.i18nc("@info:status", "Connect to %s" % serial_port))
 
         self._serial = None
         self._serial_port = serial_port
@@ -220,6 +225,7 @@ class USBPrinterOutputDevice(PrinterOutputDevice):
         programmer.close()
 
         self._updateFirmwareCompletedSucessfully()
+        self._serial_port = None
         return
 
     ##  Private function which makes sure that firmware update process has failed by missing firmware
@@ -264,6 +270,8 @@ class USBPrinterOutputDevice(PrinterOutputDevice):
     ##  Upload new firmware to machine
     #   \param filename full path of firmware file to be uploaded
     def updateFirmware(self, file_name):
+        if self._autodetect_port:
+            self._detectSerialPort()
         Logger.log("i", "Updating firmware of %s using %s", self._serial_port, file_name)
         self._firmware_file_name = file_name
         self._update_firmware_thread.start()
@@ -295,10 +303,35 @@ class USBPrinterOutputDevice(PrinterOutputDevice):
             self.sendCommand("M119")
             time.sleep(0.5)
 
+    def _detectSerialPort(self):
+        # Deferred import due to circular dependency
+        from .USBPrinterOutputDeviceManager import USBPrinterOutputDeviceManager
+
+        ports = USBPrinterOutputDeviceManager.getSerialPortList(True)
+        for port in ports:
+            programmer = stk500v2.Stk500v2()
+            try:
+                programmer.connect(port) # Connect with the serial, if this succeeds, it's an arduino based usb device.
+                programmer.close()
+                self._serial_port = port
+                break
+            except ispBase.IspError as e:
+                Logger.log("i", "Could not establish connection on %s: %s. Device is not arduino based." %(port,str(e)))
+            except Exception as e:
+                Logger.log("i", "Could not establish connection on %s, unknown reasons.  Device is not arduino based." % port)
+
     ##  Private connect function run by thread. Can be started by calling connect.
     def _connect(self):
         Logger.log("d", "Attempting to connect to %s", self._serial_port)
         self.setConnectionState(ConnectionState.connecting)
+        if self._autodetect_port:
+            self.setConnectionText(catalog.i18nc("@info:status", "Scanning available serial ports for printers"))
+            self._detectSerialPort()
+            if self._serial_port == None:
+                self.setConnectionText(catalog.i18nc("@info:status", "Failed to find a printer via USB"))
+                return
+        else:
+            self.setConnectionText(catalog.i18nc("@info:status", "Connecting to USB device"))
         programmer = stk500v2.Stk500v2()
         try:
             programmer.connect(self._serial_port) # Connect with the serial, if this succeeds, it's an arduino based usb device.
@@ -308,6 +341,7 @@ class USBPrinterOutputDevice(PrinterOutputDevice):
         except Exception as e:
             Logger.log("i", "Could not establish connection on %s, unknown reasons.  Device is not arduino based." % self._serial_port)
 
+        self.setConnectionText(catalog.i18nc("@info:status", "Autodetecting Baudrate"))
         # If the programmer connected, we know its an atmega based version.
         # Not all that useful, but it does give some debugging information.
         for baud_rate in self._getBaudrateList(): # Cycle all baud rates (auto detect)
@@ -333,6 +367,8 @@ class USBPrinterOutputDevice(PrinterOutputDevice):
                     Logger.log("d", "No response from serial connection received.")
                     # Something went wrong with reading, could be that close was called.
                     self.setConnectionState(ConnectionState.closed)
+                    self.setConnectionText(catalog.i18nc("@info:status", "Connection to USB device failed"))
+                    self._serial_port = None
                     return
 
                 if b"T:" in line:
@@ -342,6 +378,7 @@ class USBPrinterOutputDevice(PrinterOutputDevice):
                     if sucesfull_responses >= self._required_responses_auto_baud:
                         self._serial.timeout = 2 # Reset serial timeout
                         self.setConnectionState(ConnectionState.connected)
+                        self.setConnectionText(catalog.i18nc("@info:status", "Connected via USB"))
                         self._listen_thread.start()  # Start listening
                         Logger.log("i", "Established printer connection on port %s" % self._serial_port)
                         return
@@ -351,6 +388,8 @@ class USBPrinterOutputDevice(PrinterOutputDevice):
         Logger.log("e", "Baud rate detection for %s failed", self._serial_port)
         self.close()  # Unable to connect, wrap up.
         self.setConnectionState(ConnectionState.closed)
+        self.setConnectionText(catalog.i18nc("@info:status", "Baud rate detection failed"))
+        self._serial_port = None
 
     ##  Set the baud rate of the serial. This can cause exceptions, but we simply want to ignore those.
     def setBaudRate(self, baud_rate):
@@ -365,6 +404,8 @@ class USBPrinterOutputDevice(PrinterOutputDevice):
         Logger.log("d", "Closing the USB printer connection.")
         if self._connect_thread.isAlive():
             try:
+                # TODO: to avoid waiting indefinitely, notify the thread that it needs
+                # to return immediatly.
                 self._connect_thread.join()
             except Exception as e:
                 Logger.log("d", "PrinterConnection.close: %s (expected)", e)
@@ -374,6 +415,7 @@ class USBPrinterOutputDevice(PrinterOutputDevice):
         self._connect_thread.daemon = True
 
         self.setConnectionState(ConnectionState.closed)
+        self.setConnectionText(catalog.i18nc("@info:status", "Connection closed"))
         if self._serial is not None:
             try:
                 self._listen_thread.join()
@@ -384,6 +426,7 @@ class USBPrinterOutputDevice(PrinterOutputDevice):
         self._listen_thread = threading.Thread(target = self._listen)
         self._listen_thread.daemon = True
         self._serial = None
+        self._serial_port = None
 
     ##  Directly send the command, withouth checking connection state (eg; printing).
     #   \param cmd string with g-code
