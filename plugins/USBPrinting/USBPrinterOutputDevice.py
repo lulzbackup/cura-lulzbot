@@ -62,6 +62,7 @@ class USBPrinterOutputDevice(PrinterOutputDevice):
         ## Queue for commands that need to be send. Used when command is sent when a print is active.
         self._command_queue = queue.Queue()
 
+        self._write_requested = False
         self._is_printing = False
         self._is_paused = False
 
@@ -381,6 +382,9 @@ class USBPrinterOutputDevice(PrinterOutputDevice):
                         self.setConnectionText(catalog.i18nc("@info:status", "Connected via USB"))
                         self._listen_thread.start()  # Start listening
                         Logger.log("i", "Established printer connection on port %s" % self._serial_port)
+                        if self._write_requested:
+                            self.startPrint()
+                        self._write_requested = False
                         return
 
                 self._sendCommand("M105")  # Send M105 as long as we are listening, otherwise we end up in an undefined state
@@ -472,7 +476,14 @@ class USBPrinterOutputDevice(PrinterOutputDevice):
 
     def requestWrite(self, node, file_name = None, filter_by_machine = False):
         Application.getInstance().showPrintMonitor.emit(True)
-        self.startPrint()
+        if self._connection_state == ConnectionState.connected:
+            self.startPrint()
+        elif self._connection_state == ConnectionState.closed:
+            self._write_requested = True
+            self.close()
+            self.connect()
+        else:
+            self._write_requested = True
 
     def _setEndstopState(self, endstop_key, value):
         if endstop_key == b"x_min":
