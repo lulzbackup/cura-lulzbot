@@ -140,14 +140,23 @@ UM.ManagementPage
                 var base_file = Cura.ContainerManager.getContainerMetaDataEntry(base.currentItem.id, "base_file")
                 // We need to copy the base container instead of the specific variant.
                 var material_id = base_file == "" ? Cura.ContainerManager.duplicateMaterial(base.currentItem.id): Cura.ContainerManager.duplicateMaterial(base_file)
+
                 if(material_id == "")
                 {
                     return
                 }
                 if(Cura.MachineManager.hasMaterials)
                 {
-                    Cura.MachineManager.setActiveMaterial(material_id)
-                }
+	                Cura.MachineManager.setActiveMaterial(material_id)
+
+	                for(var i = 0; i < objectList.count; i++)
+	                {
+	                    if (model.getItem(i).id == material_id)
+	                    {
+	                        objectList.currentIndex = i
+	                    }
+	                }
+	            }
             }
         },
         Button
@@ -280,6 +289,14 @@ UM.ManagementPage
                 }
                 messageDialog.open()
                 CuraApplication.setDefaultPath("dialog_material_path", folder)
+
+                for(var i = 0; i < objectList.count; i++)
+                {
+                    if (model.getItem(i).id == result.id)
+                    {
+                        objectList.currentIndex = i
+                    }
+                }
             }
         }
 

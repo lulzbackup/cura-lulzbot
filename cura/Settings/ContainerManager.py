@@ -401,7 +401,7 @@ class ContainerManager(QObject):
 
         self._container_registry.addContainer(container)
 
-        return { "status": "success", "message": "Successfully imported container {0}".format(container.getName()) }
+        return { "status": "success", "message": "Successfully imported container {0}".format(container.getName()), "id": container_id}
 
     ##  Update the current active quality changes container with the settings from the user container.
     #
@@ -683,6 +683,7 @@ class ContainerManager(QObject):
             duplicated_container.deserialize(f.read())
         duplicated_container.setDirty(True)
         self._container_registry.addContainer(duplicated_container)
+        return new_id
 
     ##  Get the singleton instance for this class.
     @classmethod
