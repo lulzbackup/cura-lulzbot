@@ -268,4 +268,9 @@ class USBPrinterOutputDeviceManager(QObject, OutputDevicePlugin, Extension):
                 base_list = base_list + glob.glob("/dev/ttyUSB*") + glob.glob("/dev/ttyACM*") + glob.glob("/dev/cu.*") + glob.glob("/dev/tty.usb*") + glob.glob("/dev/rfcomm*") + glob.glob("/dev/serial/by-id/*")
         return list(base_list)
 
+    @pyqtProperty("QVariantList")
+    def portList(self):
+        print(self.getSerialPortList())
+        return self.getSerialPortList()
+
     _instance = None

@@ -55,7 +55,7 @@ Cura.MachineAction
 
                 Column
                 {
-                    width: parent.width / 2
+                    width: parent.width / 3
                     spacing: UM.Theme.getSize("default_margin").height
 
                     Label
@@ -168,7 +168,7 @@ Cura.MachineAction
 
                 Column
                 {
-                    width: parent.width / 2
+                    width: parent.width / 3
                     spacing: UM.Theme.getSize("default_margin").height
 
                     Label
@@ -287,9 +287,69 @@ Cura.MachineAction
                         }
                     }
                 }
+
+                Column
+                {
+                    width: parent.width / 3
+
+                    Label
+                    {
+                        text: catalog.i18nc("@label", "Connection Settings")
+                        font.bold: true
+                    }
+
+                    Label
+                    {
+                        text: catalog.i18nc("@label", "Port:")
+                    }
+                    ComboBox
+                    {
+                        model:
+                        {
+                            var port_list = Cura.USBPrinterManager.portList
+                            var ind = port_list.indexOf(machinePortProvider.properties.value)
+                            port_list.push("AUTO")
+                            return port_list
+                        }
+
+                        currentIndex:
+                        {
+                            var index = model.indexOf(machinePortProvider.properties.value);
+                            if(index == -1)
+                            {
+                                index = 0;
+                            }
+                            return index
+                        }
+                        onActivated:
+                        {
+                            machinePortProvider.setPropertyValue("value", model[index]);
+                        }
+                    }
+                    Label
+                    {
+                        text: catalog.i18nc("@label", "Communication Speed:")
+                    }
+                    ComboBox
+                    {
+                        model: ["AUTO", "250000", "230400", "115200", "57600", "38400", "19200", "9600"]
+
+                        currentIndex:
+                        {
+                            var index = model.indexOf(machineBaudrateProvider.properties.value);
+                            if(index == -1)
+                            {
+                                index = 0;
+                            }
+                            return index
+                        }
+                        onActivated:
+                        {
+                            machineBaudrateProvider.setPropertyValue("value", model[index]);
+                        }
+                    }
+                }
             }
-
-
 
             Row
             {
@@ -378,6 +438,26 @@ Cura.MachineAction
         polygon.push([ parseFloat(printheadXMaxField.text),-parseFloat(printheadYMinField.text)]);
         machineHeadPolygonProvider.setPropertyValue("value", JSON.stringify(polygon));
         manager.forceUpdate();
+    }
+
+    UM.SettingPropertyProvider
+    {
+        id: machinePortProvider
+
+        containerStackId: Cura.MachineManager.activeMachineId
+        key: "machine_port"
+        watchedProperties: [ "value" ]
+        storeIndex: 4
+    }
+
+    UM.SettingPropertyProvider
+    {
+        id: machineBaudrateProvider
+
+        containerStackId: Cura.MachineManager.activeMachineId
+        key: "machine_baudrate"
+        watchedProperties: [ "value" ]
+        storeIndex: 4
     }
 
     UM.SettingPropertyProvider

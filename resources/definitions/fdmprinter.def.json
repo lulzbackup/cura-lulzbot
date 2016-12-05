@@ -69,6 +69,22 @@
                     "settable_per_extruder": false,
                     "settable_per_meshgroup": false
                 },
+                "machine_port":
+                {
+                    "label": "Machine Port",
+                    "description": "Port",
+                    "default_value": "AUTO",
+                    "type": "str",
+                    "enabled": false
+                },
+                "machine_baudrate":
+                {
+                    "label": "Machine Baudrate",
+                    "description": "Baudrate",
+                    "default_value": "AUTO",
+                    "type": "str",
+                    "enabled": false
+                },
                 "material_guid":
                 {
                     "label": "Material GUID",
