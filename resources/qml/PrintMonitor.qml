@@ -86,6 +86,18 @@ Column
         property string label: catalog.i18nc("@label", "Estimated time left")
         property string value: printerConnected ? getPrettyTime(connectedPrinter.timeTotal - connectedPrinter.timeElapsed) : ""
     }
+    Item
+    {
+        Button
+        {
+            anchors.top: monitorItem.bottom
+            text: catalog.i18nc("@label", "Manual control")
+            onClicked:
+            {
+                printer_control.visible = true;
+            }
+        }
+    }
 
     Component
     {
@@ -137,6 +149,14 @@ Column
                 font: UM.Theme.getFont("setting_category")
                 color: UM.Theme.getColor("setting_category_text")
             }
+        }
+    }
+    PrinterControlWindow
+    {
+        id: printer_control
+        onCommand:
+        {
+            console.log("Sent command: " + command);
         }
     }
 }
