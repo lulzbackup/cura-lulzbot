@@ -19,6 +19,23 @@ UM.Dialog
     height: minimumHeight
     signal command(string command)
 
+    property var history_list: []
+    property var current_history_index: -1
+
+    function sendCommand()
+    {
+        var cmd = command_field.text;
+        if (cmd.length > 0)
+        {
+            history_list.push(cmd);
+            base.command(cmd);
+            command_field.text = "";
+            current_history_index = -1;
+            console.log(history_list.length);
+        }
+        command_field.forceActiveFocus();
+    }
+
 
     TextField
     {
@@ -33,6 +50,38 @@ UM.Dialog
         }
 
         text: ""
+
+        Keys.onPressed:
+        {
+            console.log(event);
+            if (event.key == Qt.Key_Up)
+            {
+                if (current_history_index < history_list.length - 1)
+                {
+                    current_history_index += 1;
+                    text = history_list[history_list.length - current_history_index - 1];
+                }
+                event.accepted = true;
+            }
+            else if (event.key == Qt.Key_Down)
+            {
+                if (current_history_index > 0)
+                {
+                    current_history_index -= 1;
+                    text = history_list[history_list.length - current_history_index - 1];
+                }
+                else if (current_history_index == 0)
+                {
+                    text = "";
+                    current_history_index = -1;
+                }
+                event.accepted = true;
+            }
+            else
+            {
+                current_history_index = 0;
+            }
+        }
     }
 
     rightButtons: [
@@ -48,15 +97,15 @@ UM.Dialog
 
             onClicked:
             {
-                base.command(command_field.text);
+                base.sendCommand();
             }
         }
     ]
 
     onAccepted:
     {
-        base.command(command_field.text);
         base.visible = true
+        base.sendCommand();
     }
 }
 
