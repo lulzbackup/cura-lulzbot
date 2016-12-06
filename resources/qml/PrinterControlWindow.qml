@@ -27,11 +27,11 @@ UM.Dialog
         var cmd = command_field.text;
         if (cmd.length > 0)
         {
+            cmd = cmd.toUpperCase();
             history_list.push(cmd);
             base.command(cmd);
             command_field.text = "";
             current_history_index = -1;
-            console.log(history_list.length);
         }
         command_field.forceActiveFocus();
     }
@@ -50,6 +50,7 @@ UM.Dialog
         }
 
         text: ""
+        font.capitalization: Font.AllUppercase
 
         Keys.onPressed:
         {
