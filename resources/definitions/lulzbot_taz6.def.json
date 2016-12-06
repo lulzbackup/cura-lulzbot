@@ -40,6 +40,10 @@
         "machine_end_gcode":
         {
             "default_value_from_file": "lulzbot_taz6_end"
+        },
+        "machine_baudrate":
+        {
+            "default_value": "250000"
         }
     }
 }

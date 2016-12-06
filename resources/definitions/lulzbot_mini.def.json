@@ -69,6 +69,10 @@
         "material_soften_temperature":
         {
             "enabled": "False"
+        },
+        "machine_baudrate":
+        {
+            "default_value": "115200"
         }
     }
 }
