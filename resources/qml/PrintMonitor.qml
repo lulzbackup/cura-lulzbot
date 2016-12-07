@@ -35,6 +35,8 @@ Column
             wrapMode: Text.WordWrap
             width: parent.width
         }
+
+
     }
 
     Loader
@@ -88,14 +90,18 @@ Column
     }
     Item
     {
+        anchors.bottom: parent.bottom
+        height: childrenRect.height + UM.Theme.getSize("default_margin").height
+
         Button
         {
-            anchors.top: monitorItem.bottom
+            anchors.top: parent.top
             text: catalog.i18nc("@label", "Manual control")
             onClicked:
             {
                 printer_control.visible = true;
             }
+            //visible: connectedPrinter
         }
     }
 
