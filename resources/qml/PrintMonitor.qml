@@ -157,6 +157,7 @@ Column
         onCommand:
         {
             console.log("Sent command: " + command);
+            receive(command);
         }
     }
 }

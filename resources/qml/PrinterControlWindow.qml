@@ -13,14 +13,17 @@ UM.Dialog
 
     title: catalog.i18nc("@title:window","Printer control")
 
-    minimumWidth: 300 * Screen.devicePixelRatio
-    minimumHeight: 100 * Screen.devicePixelRatio
+    minimumWidth: 500 * Screen.devicePixelRatio
+    minimumHeight: 400 * Screen.devicePixelRatio
     width: minimumWidth
     height: minimumHeight
     signal command(string command)
+    signal receive(string command)
 
     property var history_list: []
     property var current_history_index: -1
+
+    property var locale: Qt.locale()
 
     function sendCommand()
     {
@@ -32,8 +35,31 @@ UM.Dialog
             base.command(cmd);
             command_field.text = "";
             current_history_index = -1;
+            command_log.text += "> [" + new Date().toLocaleTimeString(locale, "hh:mm:ss") + "] " + cmd + "\n";
         }
         command_field.forceActiveFocus();
+    }
+
+    onReceive:
+    {
+        command_log.text += "< [" + new Date().toLocaleTimeString(locale, "hh:mm:ss") + "] " + command + "\n"
+    }
+
+    TextArea
+    {
+        id: command_log
+        anchors
+        {
+            top: parent.top
+            topMargin: UM.Theme.getSize("default_margin").width
+            left: parent.left
+            leftMargin: UM.Theme.getSize("default_margin").width
+            right: parent.right
+            rightMargin: UM.Theme.getSize("default_margin").width
+            bottom: command_field.top
+        }
+        readOnly: true
+        text: ""
     }
 
 
@@ -43,10 +69,11 @@ UM.Dialog
 
         anchors
         {
-            top: parent.top
+            bottom: parent.bottom
             left: parent.left
             leftMargin: UM.Theme.getSize("default_margin").width
             right: parent.right
+            rightMargin: UM.Theme.getSize("default_margin").width
         }
 
         text: ""
@@ -54,7 +81,6 @@ UM.Dialog
 
         Keys.onPressed:
         {
-            console.log(event);
             if (event.key == Qt.Key_Up)
             {
                 if (current_history_index < history_list.length - 1)
