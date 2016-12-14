@@ -99,9 +99,11 @@ Column
             text: catalog.i18nc("@label", "Manual control")
             onClicked:
             {
+                connectedPrinter.connect()
+                connectedPrinter.messageFromPrinter.connect(printer_control.receive)
                 printer_control.visible = true;
             }
-            //visible: connectedPrinter
+            visible: connectedPrinter
         }
     }
 
@@ -162,8 +164,14 @@ Column
         id: printer_control
         onCommand:
         {
-            console.log("Sent command: " + command);
-            receive(command);
+            if (connectedPrinter)
+            {
+                connectedPrinter.sendCommand(command);
+            }
+            else
+            {
+                receive("Error: Printer not connected")
+            }
         }
     }
 }

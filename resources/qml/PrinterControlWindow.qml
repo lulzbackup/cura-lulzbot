@@ -35,14 +35,14 @@ UM.Dialog
             base.command(cmd);
             command_field.text = "";
             current_history_index = -1;
-            command_log.text += "> [" + new Date().toLocaleTimeString(locale, "hh:mm:ss") + "] " + cmd + "\n";
+            command_log.append("> [" + new Date().toLocaleTimeString(locale, "hh:mm:ss") + "] " + cmd);
         }
         command_field.forceActiveFocus();
     }
 
     onReceive:
     {
-        command_log.text += "< [" + new Date().toLocaleTimeString(locale, "hh:mm:ss") + "] " + command + "\n"
+        command_log.append("< [" + new Date().toLocaleTimeString(locale, "hh:mm:ss") + "] " + command)
     }
 
     TextArea
