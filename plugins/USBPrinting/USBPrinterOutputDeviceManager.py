@@ -259,7 +259,28 @@ class USBPrinterOutputDeviceManager(QObject, OutputDevicePlugin, Extension):
 
     @pyqtProperty("QVariantList")
     def portList(self):
-        print(self.getSerialPortList())
         return self.getSerialPortList()
 
     _instance = None
+
+    @pyqtSlot(str, result=bool)
+    def sendCommandToCurrentPrinter(self, command):
+        try:
+            printer = Application.getInstance().getMachineManager().printerOutputDevices[0]
+        except:
+            return False
+        if type(printer) != USBPrinterOutputDevice:
+            return False
+        printer.sendCommand(command)
+        return True
+
+    @pyqtSlot(result=bool)
+    def connectToCurrentPrinter(self):
+        try:
+            printer = Application.getInstance().getMachineManager().printerOutputDevices[0]
+        except:
+            return False
+        if type(printer) != USBPrinterOutputDevice:
+            return False
+        printer.connect()
+        return True
