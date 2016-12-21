@@ -322,6 +322,8 @@ class CuraApplication(QtApplication):
 
             self._recent_files.append(QUrl.fromLocalFile(f))
 
+        self._exit_allowed = False
+
     ## Lock file check: if (another) Cura is writing in the Config dir.
     #  one may not be able to read a valid set of files while writing. Not entirely fool-proof,
     #  but works when you start Cura shortly after shutting down.
@@ -507,6 +509,26 @@ class CuraApplication(QtApplication):
             self._started = True
 
             self.exec_()
+
+    def isExitAllowed(self):
+        is_printing = len(self.getMachineManager().printerOutputDevices) > 0 and\
+                      self.getMachineManager().printerOutputDevices[0].acceptsCommands and\
+                      self.getMachineManager().printerOutputDevices[0].jobState in ["paused", "printing", "pre_print"]
+        if not is_printing:
+            return True
+        if self._exit_allowed:
+            return True
+        self.exitRequested.emit()
+        return False
+
+    exitRequested = pyqtSignal()
+
+    def setExitAllowed(self, allowed):
+        self._exit_allowed = allowed
+
+    @pyqtProperty(bool, fset=setExitAllowed)
+    def exitAllowed(self):
+        return self._exit_allowed
 
     def getMachineManager(self, *args):
         if self._machine_manager is None:
