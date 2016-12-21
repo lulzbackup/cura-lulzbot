@@ -58,6 +58,7 @@ import copy
 import urllib
 import os
 import time
+import signal
 
 CONFIG_LOCK_FILENAME = "cura.lock"
 
@@ -323,6 +324,8 @@ class CuraApplication(QtApplication):
             self._recent_files.append(QUrl.fromLocalFile(f))
 
         self._exit_allowed = False
+        self._original_sigint = signal.getsignal(signal.SIGINT)
+        signal.signal(signal.SIGINT, self.consoleExit)
 
     ## Lock file check: if (another) Cura is writing in the Config dir.
     #  one may not be able to read a valid set of files while writing. Not entirely fool-proof,
@@ -520,6 +523,14 @@ class CuraApplication(QtApplication):
             return True
         self.exitRequested.emit()
         return False
+
+    def consoleExit(self, signum, frame):
+        signal.signal(signal.SIGINT, self._original_sigint)
+
+        if self.isExitAllowed():
+            self.windowClosed()
+
+        signal.signal(signal.SIGINT, self.consoleExit)
 
     exitRequested = pyqtSignal()
 
