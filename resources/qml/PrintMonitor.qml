@@ -174,7 +174,7 @@ Column
                     text: "Connect"
                     onClicked:
                     {
-                        Cura.USBPrinterManager.connectToCurrentPrinter()
+                        connectedPrinter.connect()
                     }
                 }
 
@@ -183,6 +183,7 @@ Column
                     text: "Disconnect"
                     onClicked:
                     {
+                        connectedPrinter.close()
                     }
                 }
 
@@ -222,9 +223,7 @@ Column
 
                     onClicked:
                     {
-                        Cura.USBPrinterManager.sendCommandToCurrentPrinter("G91")
-                        Cura.USBPrinterManager.sendCommandToCurrentPrinter("G0 Y-" + moveLengthTextField.text)
-                        Cura.USBPrinterManager.sendCommandToCurrentPrinter("G90")
+                        connectedPrinter.moveHead(0, -parseFloat(moveLengthTextField.text), 0)
                     }
                 }
 
@@ -238,9 +237,7 @@ Column
 
                     onClicked:
                     {
-                        Cura.USBPrinterManager.sendCommandToCurrentPrinter("G91")
-                        Cura.USBPrinterManager.sendCommandToCurrentPrinter("G0 X-" + moveLengthTextField.text)
-                        Cura.USBPrinterManager.sendCommandToCurrentPrinter("G90")
+                        connectedPrinter.moveHead(-parseFloat(moveLengthTextField.text), 0, 0)
                     }
                 }
 
@@ -254,9 +251,7 @@ Column
 
                     onClicked:
                     {
-                        Cura.USBPrinterManager.sendCommandToCurrentPrinter("G91")
-                        Cura.USBPrinterManager.sendCommandToCurrentPrinter("G0 X" + moveLengthTextField.text)
-                        Cura.USBPrinterManager.sendCommandToCurrentPrinter("G90")
+                        connectedPrinter.moveHead(parseFloat(moveLengthTextField.text), 0, 0)
                     }
                 }
 
@@ -270,9 +265,7 @@ Column
 
                     onClicked:
                     {
-                        Cura.USBPrinterManager.sendCommandToCurrentPrinter("G91")
-                        Cura.USBPrinterManager.sendCommandToCurrentPrinter("G0 Y" + moveLengthTextField.text)
-                        Cura.USBPrinterManager.sendCommandToCurrentPrinter("G90")
+                        connectedPrinter.moveHead(0, parseFloat(moveLengthTextField.text), 0)
                     }
                 }
 
@@ -286,9 +279,7 @@ Column
 
                     onClicked:
                     {
-                        Cura.USBPrinterManager.sendCommandToCurrentPrinter("G91")
-                        Cura.USBPrinterManager.sendCommandToCurrentPrinter("G0 Z" + moveLengthTextField.text)
-                        Cura.USBPrinterManager.sendCommandToCurrentPrinter("G90")
+                        connectedPrinter.moveHead(0, 0, parseFloat(moveLengthTextField.text))
                     }
                 }
 
@@ -302,9 +293,7 @@ Column
 
                     onClicked:
                     {
-                        Cura.USBPrinterManager.sendCommandToCurrentPrinter("G91")
-                        Cura.USBPrinterManager.sendCommandToCurrentPrinter("G0 Z-" + moveLengthTextField.text)
-                        Cura.USBPrinterManager.sendCommandToCurrentPrinter("G90")
+                        connectedPrinter.moveHead(0, 0, -parseFloat(moveLengthTextField.text))
                     }
                 }
 
