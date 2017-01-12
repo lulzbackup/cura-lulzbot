@@ -252,7 +252,7 @@ Item
                         if(adhesionType == "none")
                         {
                             // If the rest of the stack doesn't prescribe an adhesion-type, default to a brim
-                            adhesionType = "brim";
+                            adhesionType = "skirt";
                         }
                     }
                     platformAdhesionType.setPropertyValue("value", adhesionType);

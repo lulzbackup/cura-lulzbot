@@ -2930,7 +2930,7 @@
                         "raft": "Raft",
                         "none": "None"
                     },
-                    "default_value": "brim",
+                    "default_value": "skirt",
                     "resolve": "'raft' if 'raft' in extruderValues('adhesion_type') else ('brim' if 'brim' in extruderValues('adhesion_type') else 'skirt')",
                     "settable_per_mesh": false,
                     "settable_per_extruder": false

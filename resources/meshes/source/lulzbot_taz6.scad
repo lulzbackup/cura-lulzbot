@@ -1,30 +1,24 @@
+use <lulzbot_generic_components.scad>;
+
 x = 280;
 y = 280;
-plate_thickness = 11;
+plate_thickness = 4;
+print_surface(
+	x = x,
+	y = y,
+	plate_thickness = 4,
+	z_mov = 7
+);
 
 radius = 11;
-washer_thickness = 1.5;
-
-cube(size = [x, y, plate_thickness], center = false);
-
-translate([0, 0, plate_thickness]){
-	cylinder(h = washer_thickness, r1 = radius, r2 = radius, center = false);
+offset = 22;
+translate([-radius, -radius]) {
+	all_bed_corners(x = x, y = y, offset = offset);
 }
 
-translate([x, 0, plate_thickness]){
-	cylinder(h = washer_thickness, r1 = radius, r2 = radius, center = false);
-}
-
-translate([0, y, plate_thickness]){
-	cylinder(h = washer_thickness, r1 = radius, r2 = radius, center = false);
-}
-
-translate([x, y, plate_thickness]){
-	cylinder(h = washer_thickness, r1 = radius, r2 = radius, center = false);
-}
-
+//Wiper
 rotate(a = [0, 0, 90]) {
-	translate([20, 0, 0]){
-		import("wiper_mount_v1.1.stl");
-	}
+	wiper(x = offset, y = 0, z = 3);
 }
+
+//Slap in simplified model of bed plate here

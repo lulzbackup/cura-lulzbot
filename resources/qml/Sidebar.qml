@@ -15,6 +15,7 @@ Rectangle
 
     property int currentModeIndex;
     property bool monitoringPrint: false
+    property bool hideSettings: PrintInformation.preSliced
     Connections
     {
         target: Printer
@@ -186,7 +187,7 @@ Rectangle
 
     Label {
         id: settingsModeLabel
-        text: catalog.i18nc("@label:listbox","Print Setup");
+        text: !hideSettings ? catalog.i18nc("@label:listbox","Print Setup") : catalog.i18nc("@label:listbox","Print Setup disabled\nG-code files cannot be modified");
         anchors.left: parent.left
         anchors.leftMargin: UM.Theme.getSize("default_margin").width;
         anchors.top: headerSeparator.bottom
@@ -205,7 +206,7 @@ Rectangle
         anchors.rightMargin: UM.Theme.getSize("default_margin").width
         anchors.top: headerSeparator.bottom
         anchors.topMargin: UM.Theme.getSize("default_margin").height
-        visible: !monitoringPrint
+        visible: !monitoringPrint && !hideSettings
         Component{
             id: wizardDelegate
             Button {
@@ -277,7 +278,7 @@ Rectangle
         anchors.topMargin: UM.Theme.getSize("default_margin").height
         anchors.left: base.left
         anchors.right: base.right
-        visible: !monitoringPrint
+        visible: !monitoringPrint && !hideSettings
 
         delegate: StackViewDelegate
         {

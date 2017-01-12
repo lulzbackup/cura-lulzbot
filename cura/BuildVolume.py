@@ -550,7 +550,7 @@ class BuildVolume(SceneNode):
         elif adhesion_type == "raft":
             bed_adhesion_size = self._getSettingFromAdhesionExtruder("raft_margin")
         elif adhesion_type == "none":
-            bed_adhesion_size = 0
+            bed_adhesion_size = 0.1
         else:
             raise Exception("Unknown bed adhesion type. Did you forget to update the build volume calculations for your new bed adhesion type?")
 

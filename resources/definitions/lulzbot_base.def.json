@@ -668,7 +668,9 @@
         },
         "adhesion_type":
         {
-            "enabled": "True"
+            "enabled": "True",
+            "default_value": "none",
+            "resolve": "'none'"
         },
         "material_print_temperature":
         {
