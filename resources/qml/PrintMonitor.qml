@@ -100,6 +100,7 @@ Column
             onClicked:
             {
                 Cura.USBPrinterManager.connectToCurrentPrinter()
+                connectedPrinter.messageFromPrinter.disconnect(printer_control.receive)
                 connectedPrinter.messageFromPrinter.connect(printer_control.receive)
                 printer_control.visible = true;
             }
