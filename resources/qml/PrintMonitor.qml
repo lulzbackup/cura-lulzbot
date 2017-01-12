@@ -88,24 +88,14 @@ Column
         property string label: catalog.i18nc("@label", "Estimated time left")
         property string value: printerConnected ? getPrettyTime(connectedPrinter.timeTotal - connectedPrinter.timeElapsed) : ""
     }
-    Item
+    Loader
     {
-        anchors.bottom: parent.bottom
-        height: childrenRect.height + UM.Theme.getSize("default_margin").height
-
-        Button
-        {
-            anchors.top: parent.top
-            text: catalog.i18nc("@label", "Manual control")
-            onClicked:
-            {
-                Cura.USBPrinterManager.connectToCurrentPrinter()
-                connectedPrinter.messageFromPrinter.disconnect(printer_control.receive)
-                connectedPrinter.messageFromPrinter.connect(printer_control.receive)
-                printer_control.visible = true;
-            }
-            visible: connectedPrinter
-        }
+        sourceComponent: monitorSection
+        property string label: catalog.i18nc("@label", "Manual control")
+    }
+    Loader
+    {
+        sourceComponent: monitorControls
     }
 
     Component
@@ -157,6 +147,293 @@ Column
                 text: label
                 font: UM.Theme.getFont("setting_category")
                 color: UM.Theme.getColor("setting_category_text")
+            }
+        }
+    }
+    Component
+    {
+        id: monitorControls
+
+        Rectangle
+        {
+            color: UM.Theme.getColor("setting_category")
+            width: base.width - 2 * UM.Theme.getSize("default_margin").width
+            height: childrenRect.height
+
+            visible: connectedPrinter
+
+            Row
+            {
+                id: baseControls
+
+                anchors.left: parent.left
+                anchors.leftMargin: UM.Theme.getSize("default_margin").width
+
+                Button
+                {
+                    text: "Connect"
+                    onClicked:
+                    {
+                        Cura.USBPrinterManager.connectToCurrentPrinter()
+                    }
+                }
+
+                Button
+                {
+                    text: "Disconnect"
+                    onClicked:
+                    {
+                    }
+                }
+
+                Button
+                {
+                    text: catalog.i18nc("@label", "Console")
+                    onClicked:
+                    {
+                        connectedPrinter.messageFromPrinter.disconnect(printer_control.receive)
+                        connectedPrinter.messageFromPrinter.connect(printer_control.receive)
+                        printer_control.visible = true;
+                    }
+                }
+            }
+
+            GridLayout
+            {
+                id: controlsLayout
+                columns: 4
+                rows: 4
+                rowSpacing: 1
+                columnSpacing: 1
+
+                anchors.top: baseControls.bottom
+                anchors.topMargin: UM.Theme.getSize("default_margin").width
+
+                anchors.left: parent.left
+                anchors.leftMargin: UM.Theme.getSize("default_margin").width
+
+                Button
+                {
+                    text: "/\\"
+                    Layout.row: 1
+                    Layout.column: 2
+                    Layout.preferredWidth: UM.Theme.getSize("section").height
+                    Layout.preferredHeight: UM.Theme.getSize("section").height
+
+                    onClicked:
+                    {
+                        Cura.USBPrinterManager.sendCommandToCurrentPrinter("G91")
+                        Cura.USBPrinterManager.sendCommandToCurrentPrinter("G0 Y-" + moveLengthTextField.text)
+                        Cura.USBPrinterManager.sendCommandToCurrentPrinter("G90")
+                    }
+                }
+
+                Button
+                {
+                    text: "<"
+                    Layout.row: 2
+                    Layout.column: 1
+                    Layout.preferredWidth: UM.Theme.getSize("section").height
+                    Layout.preferredHeight: UM.Theme.getSize("section").height
+
+                    onClicked:
+                    {
+                        Cura.USBPrinterManager.sendCommandToCurrentPrinter("G91")
+                        Cura.USBPrinterManager.sendCommandToCurrentPrinter("G0 X-" + moveLengthTextField.text)
+                        Cura.USBPrinterManager.sendCommandToCurrentPrinter("G90")
+                    }
+                }
+
+                Button
+                {
+                    text: ">"
+                    Layout.row: 2
+                    Layout.column: 3
+                    Layout.preferredWidth: UM.Theme.getSize("section").height
+                    Layout.preferredHeight: UM.Theme.getSize("section").height
+
+                    onClicked:
+                    {
+                        Cura.USBPrinterManager.sendCommandToCurrentPrinter("G91")
+                        Cura.USBPrinterManager.sendCommandToCurrentPrinter("G0 X" + moveLengthTextField.text)
+                        Cura.USBPrinterManager.sendCommandToCurrentPrinter("G90")
+                    }
+                }
+
+                Button
+                {
+                    text: "V"
+                    Layout.row: 3
+                    Layout.column: 2
+                    Layout.preferredWidth: UM.Theme.getSize("section").height
+                    Layout.preferredHeight: UM.Theme.getSize("section").height
+
+                    onClicked:
+                    {
+                        Cura.USBPrinterManager.sendCommandToCurrentPrinter("G91")
+                        Cura.USBPrinterManager.sendCommandToCurrentPrinter("G0 Y" + moveLengthTextField.text)
+                        Cura.USBPrinterManager.sendCommandToCurrentPrinter("G90")
+                    }
+                }
+
+                Button
+                {
+                    text: "/\\"
+                    Layout.row: 1
+                    Layout.column: 4
+                    Layout.preferredWidth: UM.Theme.getSize("section").height
+                    Layout.preferredHeight: UM.Theme.getSize("section").height
+
+                    onClicked:
+                    {
+                        Cura.USBPrinterManager.sendCommandToCurrentPrinter("G91")
+                        Cura.USBPrinterManager.sendCommandToCurrentPrinter("G0 Z" + moveLengthTextField.text)
+                        Cura.USBPrinterManager.sendCommandToCurrentPrinter("G90")
+                    }
+                }
+
+                Button
+                {
+                    text: "V"
+                    Layout.row: 3
+                    Layout.column: 4
+                    Layout.preferredWidth: UM.Theme.getSize("section").height
+                    Layout.preferredHeight: UM.Theme.getSize("section").height
+
+                    onClicked:
+                    {
+                        Cura.USBPrinterManager.sendCommandToCurrentPrinter("G91")
+                        Cura.USBPrinterManager.sendCommandToCurrentPrinter("G0 Z-" + moveLengthTextField.text)
+                        Cura.USBPrinterManager.sendCommandToCurrentPrinter("G90")
+                    }
+                }
+
+                Button
+                {
+                    text: "X"
+                    Layout.row: 1
+                    Layout.column: 1
+                    Layout.preferredWidth: UM.Theme.getSize("section").height
+                    Layout.preferredHeight: UM.Theme.getSize("section").height
+
+                    onClicked:
+                    {
+                        Cura.USBPrinterManager.sendCommandToCurrentPrinter("G28 X")
+                    }
+                }
+
+                Button
+                {
+                    text: "Y"
+                    Layout.row: 3
+                    Layout.column: 1
+                    Layout.preferredWidth: UM.Theme.getSize("section").height
+                    Layout.preferredHeight: UM.Theme.getSize("section").height
+
+                    onClicked:
+                    {
+                        Cura.USBPrinterManager.sendCommandToCurrentPrinter("G28 Y")
+                    }
+                }
+
+                Button
+                {
+                    text: "H"
+                    Layout.row: 2
+                    Layout.column: 2
+                    Layout.preferredWidth: UM.Theme.getSize("section").height
+                    Layout.preferredHeight: UM.Theme.getSize("section").height
+
+                    onClicked:
+                    {
+                        Cura.USBPrinterManager.sendCommandToCurrentPrinter("G28")
+                    }
+                }
+
+                Button
+                {
+                    text: "Z"
+                    Layout.row: 2
+                    Layout.column: 4
+                    Layout.preferredWidth: UM.Theme.getSize("section").height
+                    Layout.preferredHeight: UM.Theme.getSize("section").height
+
+                    onClicked:
+                    {
+                        Cura.USBPrinterManager.sendCommandToCurrentPrinter("G28 Z")
+                    }
+                }
+            }
+
+            GridLayout
+            {
+                anchors.left: controlsLayout.right
+                anchors.leftMargin: 16
+
+                anchors.top: controlsLayout.top
+
+                columns: 2
+                rows: 3
+                rowSpacing: 1
+                columnSpacing: 1
+
+                width: parent.width - controlsLayout.width - 16
+
+                Label
+                {
+                    text: "Move length"
+                    Layout.preferredHeight: UM.Theme.getSize("section").height
+                    color: UM.Theme.getColor("setting_control_text")
+                    font: UM.Theme.getFont("default")
+                }
+
+                TextField
+                {
+                    text: "1"
+                    id: moveLengthTextField
+                    Layout.preferredHeight: UM.Theme.getSize("section").height
+                    validator: DoubleValidator
+                    {
+                        bottom: 0
+                        top: 100
+                    }
+                }
+
+                Label
+                {
+                    text: "Extrusion amount"
+                    Layout.preferredHeight: UM.Theme.getSize("section").height
+                    color: UM.Theme.getColor("setting_control_text")
+                    font: UM.Theme.getFont("default")
+                }
+
+                TextField
+                {
+                    text: "1"
+                    id: extrusionAmountTextField
+                    Layout.preferredHeight: UM.Theme.getSize("section").height
+                    validator: DoubleValidator
+                    {
+                        bottom: 0
+                        top: 10
+                    }
+                }
+
+                Row
+                {
+                    Layout.columnSpan: 2
+                    Button
+                    {
+                        text: "Extrude"
+                        Layout.preferredHeight: UM.Theme.getSize("section").height
+                    }
+
+                    Button
+                    {
+                        text: "Retract"
+                        Layout.preferredHeight: UM.Theme.getSize("section").height
+                    }
+                }
             }
         }
     }
