@@ -154,13 +154,12 @@ Column
     {
         id: monitorControls
 
-        Rectangle
+        Item
         {
-            color: UM.Theme.getColor("setting_category")
             width: base.width - 2 * UM.Theme.getSize("default_margin").width
             height: childrenRect.height
 
-            visible: connectedPrinter
+            enabled: connectedPrinter
 
             Row
             {
@@ -168,6 +167,8 @@ Column
 
                 anchors.left: parent.left
                 anchors.leftMargin: UM.Theme.getSize("default_margin").width
+                anchors.top: parent.top
+                anchors.topMargin: UM.Theme.getSize("default_margin").width
 
                 Button
                 {
@@ -307,7 +308,7 @@ Column
 
                     onClicked:
                     {
-                        Cura.USBPrinterManager.sendCommandToCurrentPrinter("G28 X")
+                        connectedPrinter.homeX()
                     }
                 }
 
@@ -321,7 +322,7 @@ Column
 
                     onClicked:
                     {
-                        Cura.USBPrinterManager.sendCommandToCurrentPrinter("G28 Y")
+                        connectedPrinter.homeY()
                     }
                 }
 
@@ -335,7 +336,7 @@ Column
 
                     onClicked:
                     {
-                        Cura.USBPrinterManager.sendCommandToCurrentPrinter("G28")
+                        connectedPrinter.homeHead()
                     }
                 }
 
@@ -349,7 +350,7 @@ Column
 
                     onClicked:
                     {
-                        Cura.USBPrinterManager.sendCommandToCurrentPrinter("G28 Z")
+                        connectedPrinter.homeBed()
                     }
                 }
             }
@@ -407,14 +408,21 @@ Column
 
                     TextField
                     {
-                        text: "1"
+                        text: "0"
                         id: extruderTextField
                         width: parent.width / 2
-                        validator: DoubleValidator
+                        validator: IntValidator
                         {
-                            bottom: 1
-                            top: 2
+                            bottom: 0
+                            top: 1
                         }
+
+                        onAccepted:
+                        {
+                            connectedPrinter.setHotend(parseInt(extruderTextField.text))
+                        }
+
+                        enabled: false
                     }
                 }
 
@@ -453,12 +461,22 @@ Column
                     {
                         text: "Extrude"
                         width: parent.width / 2
+
+                        onClicked:
+                        {
+                            connectedPrinter.extrude(parseFloat(extrusionAmountTextField.text))
+                        }
                     }
 
                     Button
                     {
                         text: "Retract"
                         width: parent.width / 2
+
+                        onClicked:
+                        {
+                            connectedPrinter.extrude(-parseFloat(extrusionAmountTextField.text))
+                        }
                     }
                 }
 
@@ -480,10 +498,10 @@ Column
                         text: "0"
                         id: temperatureTextField
                         width: parent.width / 2
-                        validator: DoubleValidator
+                        validator: IntValidator
                         {
-                            bottom: 1
-                            top: 2
+                            bottom: 0
+                            top: 300
                         }
                     }
                 }
@@ -497,12 +515,22 @@ Column
                     {
                         text: "Heat extruder"
                         width: parent.width / 2
+
+                        onClicked:
+                        {
+                            connectedPrinter.setTargetHotendTemperature(parseInt(extruderTextField.text), parseInt(temperatureTextField.text))
+                        }
                     }
 
                     Button
                     {
                         text: "Heat bed"
                         width: parent.width / 2
+
+                        onClicked:
+                        {
+                            connectedPrinter.setTargetBedTemperature(parseInt(temperatureTextField.text))
+                        }
                     }
                 }
             }
@@ -523,6 +551,8 @@ Column
                     {
 
                     }
+
+                    enabled: false
                 }
 
                 Button
@@ -534,6 +564,7 @@ Column
                     {
 
                     }
+                    enabled: false
                 }
 
                 Button
@@ -545,6 +576,7 @@ Column
                     {
 
                     }
+                    enabled: false
                 }
 
                 Button
@@ -556,6 +588,7 @@ Column
                     {
 
                     }
+                    enabled: false
                 }
 
                 Button
@@ -565,7 +598,7 @@ Column
 
                     onClicked:
                     {
-
+                        connectedPrinter.setTargetHotendTemperature(parseInt(extruderTextField.text), 0)
                     }
                 }
 
@@ -576,7 +609,7 @@ Column
 
                     onClicked:
                     {
-
+                        connectedPrinter.setTargetBedTemperature(0)
                     }
                 }
 
@@ -589,6 +622,7 @@ Column
                     {
 
                     }
+                    enabled: false
                 }
             }
         }

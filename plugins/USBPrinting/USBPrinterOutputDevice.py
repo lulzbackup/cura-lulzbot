@@ -40,7 +40,7 @@ class USBPrinterOutputDevice(PrinterOutputDevice):
         self._serial_port = serial_port
         self._error_state = None
 
-        self._connect_thread = threading.Thread(target = self._connect)
+        self._connect_thread = threading.Thread(target = self._connect_thread_function)
         self._connect_thread.daemon = True
 
         self._end_stop_thread = None
@@ -124,10 +124,16 @@ class USBPrinterOutputDevice(PrinterOutputDevice):
         self._sendCommand("G0 Y%s F%s" % (y, speed))
 
     def _setHeadZ(self, z, speed):
-        self._sendCommand("G0 Y%s F%s" % (z, speed))
+        self._sendCommand("G0 Z%s F%s" % (z, speed))
 
     def _homeHead(self):
         self._sendCommand("G28")
+
+    def _homeX(self):
+        self._sendCommand("G28 X")
+
+    def _homeY(self):
+        self._sendCommand("G28 Y")
 
     def _homeBed(self):
         self._sendCommand("G28 Z")
@@ -142,6 +148,14 @@ class USBPrinterOutputDevice(PrinterOutputDevice):
         self._sendCommand("G91")
         self._sendCommand("G0 X%s Y%s Z%s F%s" % (x, y, z, speed))
         self._sendCommand("G90")
+
+    def _extrude(self, e, speed):
+        self._sendCommand("G91")
+        self._sendCommand("G0 E%s F%s" % (e, speed))
+        self._sendCommand("G90")
+
+    def _setHotend(self, num):
+        self._sendCommand("T%i" % num)
 
     ##  Start a print based on a g-code.
     #   \param gcode_list List with gcode (strings).
@@ -175,7 +189,7 @@ class USBPrinterOutputDevice(PrinterOutputDevice):
         return self._serial_port
 
     ##  Try to connect the serial. This simply starts the thread, which runs _connect.
-    def connect(self):
+    def _connect(self):
         if not self._updating_firmware and not self._connect_thread.isAlive():
             self._connect_thread.start()
 
@@ -322,7 +336,7 @@ class USBPrinterOutputDevice(PrinterOutputDevice):
                 Logger.log("i", "Could not establish connection on %s, unknown reasons.  Device is not arduino based." % port)
 
     ##  Private connect function run by thread. Can be started by calling connect.
-    def _connect(self):
+    def _connect_thread_function(self):
         Logger.log("d", "Attempting to connect to %s", self._serial_port)
         self.setConnectionState(ConnectionState.connecting)
         if self._autodetect_port:
@@ -404,7 +418,7 @@ class USBPrinterOutputDevice(PrinterOutputDevice):
             return False
 
     ##  Close the printer connection
-    def close(self):
+    def _close(self):
         Logger.log("d", "Closing the USB printer connection.")
         if self._connect_thread.isAlive():
             try:
