@@ -562,9 +562,8 @@ Column
 
                     onClicked:
                     {
-
+                        connectedPrinter.preheatHotend(parseInt(extruderTextField.text))
                     }
-                    enabled: false
                 }
 
                 Button
@@ -574,9 +573,8 @@ Column
 
                     onClicked:
                     {
-
+                        connectedPrinter.preheatBed()
                     }
-                    enabled: false
                 }
 
                 Button
@@ -586,9 +584,8 @@ Column
 
                     onClicked:
                     {
-
+                        Cura.USBPrinterManager.sendCommandToCurrentPrinter("M18")
                     }
-                    enabled: false
                 }
 
                 Button

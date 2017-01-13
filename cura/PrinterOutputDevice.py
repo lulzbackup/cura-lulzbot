@@ -293,6 +293,16 @@ class PrinterOutputDevice(QObject, OutputDevice):
     def _setTargetHotendTemperature(self, index, temperature):
         Logger.log("w", "_setTargetHotendTemperature is not implemented by this output device")
 
+    @pyqtSlot(int)
+    def preheatHotend(self, index):
+        temperature = Application.getInstance().getGlobalContainerStack().getProperty("material_print_temperature", "value")
+        self.setTargetHotendTemperature(index, temperature)
+
+    @pyqtSlot()
+    def preheatBed(self):
+        temperature = Application.getInstance().getGlobalContainerStack().getProperty("material_bed_temperature", "value")
+        self.setTargetBedTemperature(temperature)
+
     @pyqtProperty("QVariantList", notify = targetHotendTemperaturesChanged)
     def targetHotendTemperatures(self):
         return self._target_hotend_temperatures
