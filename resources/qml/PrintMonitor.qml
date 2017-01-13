@@ -406,23 +406,17 @@ Column
                         width: parent.width / 2
                     }
 
-                    TextField
+                    ComboBox
                     {
-                        text: "0"
-                        id: extruderTextField
+                        id: extruderSelector
                         width: parent.width / 2
-                        validator: IntValidator
-                        {
-                            bottom: 0
-                            top: 1
-                        }
 
-                        onAccepted:
-                        {
-                            connectedPrinter.setHotend(parseInt(extruderTextField.text))
-                        }
+                        model: machineExtruderCount.properties.value
 
-                        enabled: false
+                        onCurrentIndexChanged:
+                        {
+                            connectedPrinter.setHotend(currentIndex)
+                        }
                     }
                 }
 
@@ -518,7 +512,7 @@ Column
 
                         onClicked:
                         {
-                            connectedPrinter.setTargetHotendTemperature(parseInt(extruderTextField.text), parseInt(temperatureTextField.text))
+                            connectedPrinter.setTargetHotendTemperature(extruderSelector.currentIndex, parseInt(temperatureTextField.text))
                         }
                     }
 
@@ -562,7 +556,7 @@ Column
 
                     onClicked:
                     {
-                        connectedPrinter.preheatHotend(parseInt(extruderTextField.text))
+                        connectedPrinter.preheatHotend(extruderSelector.currentIndex)
                     }
                 }
 
@@ -595,7 +589,7 @@ Column
 
                     onClicked:
                     {
-                        connectedPrinter.setTargetHotendTemperature(parseInt(extruderTextField.text), 0)
+                        connectedPrinter.setTargetHotendTemperature(extruderSelector.currentIndex, 0)
                     }
                 }
 
