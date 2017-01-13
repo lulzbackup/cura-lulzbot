@@ -97,6 +97,10 @@ Column
     {
         sourceComponent: monitorControls
     }
+    /*Loader
+    {
+        sourceComponent: monitorTemperatureGraph
+    }*/
 
     Component
     {
@@ -150,6 +154,28 @@ Column
             }
         }
     }
+
+    /*Component
+    {
+        id: monitorTemperatureGraph
+
+        Item
+        {
+            width: base.width - 2 * UM.Theme.getSize("default_margin").width
+            height: childrenRect.height
+
+            Rectangle
+            {
+                color: "#808080"
+                width: parent.width
+                height: parent.width / 2
+
+                anchors.top: parent.top
+                anchors.left: parent.left
+            }
+        }
+    }*/
+
     Component
     {
         id: monitorControls
@@ -157,7 +183,7 @@ Column
         Item
         {
             width: base.width - 2 * UM.Theme.getSize("default_margin").width
-            height: childrenRect.height
+            height: childrenRect.height + 2 * UM.Theme.getSize("default_margin").width
 
             enabled: connectedPrinter
 
@@ -357,6 +383,8 @@ Column
 
             Column
             {
+                id: settingColumn
+
                 anchors.left: controlsLayout.right
                 anchors.leftMargin: UM.Theme.getSize("default_margin").width
                 anchors.top: controlsLayout.top
@@ -526,6 +554,56 @@ Column
                             connectedPrinter.setTargetBedTemperature(parseInt(temperatureTextField.text))
                         }
                     }
+                }
+            }
+
+            Canvas
+            {
+                anchors.top: settingColumn.bottom
+                anchors.left: settingColumn.left
+                anchors.right: parent.right
+                anchors.bottom: parent.bottom
+
+                anchors.topMargin: UM.Theme.getSize("default_margin").width
+                anchors.rightMargin: UM.Theme.getSize("default_margin").width
+                anchors.bottomMargin: UM.Theme.getSize("default_margin").width
+
+                id: temperatureGraph
+
+                antialiasing: true
+
+                onPaint: {
+                    var ctx = temperatureGraph.getContext('2d');
+                    ctx.save();
+                    ctx.clearRect(0, 0, temperatureGraph.width, temperatureGraph.height);
+                    ctx.translate(0,0);
+                    ctx.lineWidth = 1;
+                    ctx.strokeStyle = Qt.rgba(.3, .3, .3, 1);
+
+                    for(var i = 0; i < 6; i++)
+                    {
+                        if(i > 0)
+                        {
+                            ctx.beginPath();
+                            ctx.moveTo(0, temperatureGraph.height / 6 * i);
+                            ctx.lineTo(temperatureGraph.width, temperatureGraph.height / 6 * i);
+                            ctx.closePath();
+                            ctx.stroke();
+                        }
+
+                        ctx.fillText((5-i) * 50, 0, temperatureGraph.height / 6 * (i+1))
+                        ctx.stroke();
+                    }
+
+                    ctx.strokeStyle = Qt.rgba(1, 0, 0, 1);
+
+                    ctx.beginPath();
+                    ctx.moveTo(0, 0);
+                    ctx.lineTo(temperatureGraph.width, temperatureGraph.height);
+                    ctx.closePath();
+                    ctx.stroke();
+
+                    ctx.restore();
                 }
             }
 
