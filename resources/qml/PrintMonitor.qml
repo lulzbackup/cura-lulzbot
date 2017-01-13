@@ -203,7 +203,7 @@ Column
             {
                 id: controlsLayout
                 columns: 4
-                rows: 4
+                rows: 3
                 rowSpacing: 1
                 columnSpacing: 1
 
@@ -354,73 +354,240 @@ Column
                 }
             }
 
-            GridLayout
+            Column
             {
                 anchors.left: controlsLayout.right
-                anchors.leftMargin: 16
-
+                anchors.leftMargin: UM.Theme.getSize("default_margin").width
                 anchors.top: controlsLayout.top
 
-                columns: 2
-                rows: 3
-                rowSpacing: 1
-                columnSpacing: 1
+                width: parent.width - controlsLayout.width - UM.Theme.getSize("default_margin").width * 3
+                height: childrenRect.height
 
-                width: parent.width - controlsLayout.width - 16
+                spacing: 4
 
-                Label
+                Row
                 {
-                    text: "Move length"
-                    Layout.preferredHeight: UM.Theme.getSize("section").height
-                    color: UM.Theme.getColor("setting_control_text")
-                    font: UM.Theme.getFont("default")
-                }
+                    width: parent.width
+                    height: childrenRect.height
 
-                TextField
-                {
-                    text: "1"
-                    id: moveLengthTextField
-                    Layout.preferredHeight: UM.Theme.getSize("section").height
-                    validator: DoubleValidator
+                    Label
                     {
-                        bottom: 0
-                        top: 100
+                        text: "Move length"
+                        color: UM.Theme.getColor("setting_control_text")
+                        font: UM.Theme.getFont("default")
+                        width: parent.width / 2
                     }
-                }
 
-                Label
-                {
-                    text: "Extrusion amount"
-                    Layout.preferredHeight: UM.Theme.getSize("section").height
-                    color: UM.Theme.getColor("setting_control_text")
-                    font: UM.Theme.getFont("default")
-                }
-
-                TextField
-                {
-                    text: "1"
-                    id: extrusionAmountTextField
-                    Layout.preferredHeight: UM.Theme.getSize("section").height
-                    validator: DoubleValidator
+                    TextField
                     {
-                        bottom: 0
-                        top: 10
+                        text: "1"
+                        id: moveLengthTextField
+                        width: parent.width / 2
+
+                        validator: DoubleValidator
+                        {
+                            bottom: 0
+                            top: 100
+                        }
                     }
                 }
 
                 Row
                 {
-                    Layout.columnSpan: 2
+                    width: parent.width
+                    height: childrenRect.height
+
+                    Label
+                    {
+                        text: "Select extruder"
+                        color: UM.Theme.getColor("setting_control_text")
+                        font: UM.Theme.getFont("default")
+                        width: parent.width / 2
+                    }
+
+                    TextField
+                    {
+                        text: "1"
+                        id: extruderTextField
+                        width: parent.width / 2
+                        validator: DoubleValidator
+                        {
+                            bottom: 1
+                            top: 2
+                        }
+                    }
+                }
+
+                Row
+                {
+                    width: parent.width
+                    height: childrenRect.height
+
+                    Label
+                    {
+                        text: "Extrusion amount"
+                        color: UM.Theme.getColor("setting_control_text")
+                        font: UM.Theme.getFont("default")
+                        width: parent.width / 2
+                    }
+
+                    TextField
+                    {
+                        text: "1"
+                        id: extrusionAmountTextField
+                        width: parent.width / 2
+                        validator: DoubleValidator
+                        {
+                            bottom: 0
+                            top: 10
+                        }
+                    }
+                }
+
+                Row
+                {
+                    width: parent.width
+                    height: childrenRect.height
+
                     Button
                     {
                         text: "Extrude"
-                        Layout.preferredHeight: UM.Theme.getSize("section").height
+                        width: parent.width / 2
                     }
 
                     Button
                     {
                         text: "Retract"
-                        Layout.preferredHeight: UM.Theme.getSize("section").height
+                        width: parent.width / 2
+                    }
+                }
+
+                Row
+                {
+                    width: parent.width
+                    height: childrenRect.height
+
+                    Label
+                    {
+                        text: "Select temperature"
+                        color: UM.Theme.getColor("setting_control_text")
+                        font: UM.Theme.getFont("default")
+                        width: parent.width / 2
+                    }
+
+                    TextField
+                    {
+                        text: "0"
+                        id: temperatureTextField
+                        width: parent.width / 2
+                        validator: DoubleValidator
+                        {
+                            bottom: 1
+                            top: 2
+                        }
+                    }
+                }
+
+                Row
+                {
+                    width: parent.width
+                    height: childrenRect.height
+
+                    Button
+                    {
+                        text: "Heat extruder"
+                        width: parent.width / 2
+                    }
+
+                    Button
+                    {
+                        text: "Heat bed"
+                        width: parent.width / 2
+                    }
+                }
+            }
+
+            Column
+            {
+                width: controlsLayout.width
+                anchors.left: controlsLayout.left
+                anchors.top: controlsLayout.bottom
+                anchors.topMargin: UM.Theme.getSize("default_margin").width
+
+                Button
+                {
+                    text: "Wipe nozzle"
+                    width: parent.width
+
+                    onClicked:
+                    {
+
+                    }
+                }
+
+                Button
+                {
+                    text: "Preheat nozzle"
+                    width: parent.width
+
+                    onClicked:
+                    {
+
+                    }
+                }
+
+                Button
+                {
+                    text: "Preheat bed"
+                    width: parent.width
+
+                    onClicked:
+                    {
+
+                    }
+                }
+
+                Button
+                {
+                    text: "Motors off"
+                    width: parent.width
+
+                    onClicked:
+                    {
+
+                    }
+                }
+
+                Button
+                {
+                    text: "Cool nozzle"
+                    width: parent.width
+
+                    onClicked:
+                    {
+
+                    }
+                }
+
+                Button
+                {
+                    text: "Cool bed"
+                    width: parent.width
+
+                    onClicked:
+                    {
+
+                    }
+                }
+
+                Button
+                {
+                    text: "Cold pull"
+                    width: parent.width
+
+                    onClicked:
+                    {
+
                     }
                 }
             }
