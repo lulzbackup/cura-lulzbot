@@ -97,10 +97,6 @@ Column
     {
         sourceComponent: monitorControls
     }
-    /*Loader
-    {
-        sourceComponent: monitorTemperatureGraph
-    }*/
 
     Component
     {
@@ -154,27 +150,6 @@ Column
             }
         }
     }
-
-    /*Component
-    {
-        id: monitorTemperatureGraph
-
-        Item
-        {
-            width: base.width - 2 * UM.Theme.getSize("default_margin").width
-            height: childrenRect.height
-
-            Rectangle
-            {
-                color: "#808080"
-                width: parent.width
-                height: parent.width / 2
-
-                anchors.top: parent.top
-                anchors.left: parent.left
-            }
-        }
-    }*/
 
     Component
     {
