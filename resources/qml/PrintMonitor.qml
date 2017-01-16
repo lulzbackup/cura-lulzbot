@@ -532,6 +532,15 @@ Column
                 }
             }
 
+            Timer
+            {
+                interval: 1000
+                running: true
+                repeat: true
+
+                onTriggered: temperatureGraph.updateValues()
+            }
+
             Canvas
             {
                 anchors.top: settingColumn.bottom
@@ -546,6 +555,53 @@ Column
                 id: temperatureGraph
 
                 antialiasing: true
+
+                property variant nozzleTemperatureValues: [[]]
+                property variant bedTemperatureValues: []
+                property variant lineStyles: [Qt.rgba(1, 0, 0, 1), Qt.rgba(0, 1, 0, 1), Qt.rgba(1, 1, 0, 1), Qt.rgba(1, 0, 1, 1)]
+                property variant bedLineStyle: Qt.rgba(0, 0, 1, 1)
+
+                function updateValues()
+                {
+                    var heatedBed = machineHeatedBed.properties.value == "True"
+                    var graphs = machineExtruderCount.properties.value
+                    var resolution = 60
+
+                    while(nozzleTemperatureValues.length < graphs)
+                    {
+                        nozzleTemperatureValues.push([])
+                    }
+
+                    for(var i = 0; i < graphs; i++)
+                    {
+                        while(nozzleTemperatureValues[i].length < resolution)
+                        {
+                            nozzleTemperatureValues[i].push(0)
+                        }
+
+                        for(var j = 0; j < resolution - 1; j++)
+                        {
+                            nozzleTemperatureValues[i][j] = nozzleTemperatureValues[i][j + 1]
+                        }
+                        nozzleTemperatureValues[i][resolution - 1] = printerConnected ? Math.round(connectedPrinter.hotendTemperatures[i]) : 0
+                    }
+
+                    if(heatedBed)
+                    {
+                        while(bedTemperatureValues.length < resolution)
+                        {
+                            bedTemperatureValues.push(0)
+                        }
+
+                        for(var j = 0; j < resolution - 1; j++)
+                        {
+                            bedTemperatureValues[j] = bedTemperatureValues[j + 1]
+                        }
+                        bedTemperatureValues[resolution - 1] = printerConnected ? Math.round(connectedPrinter.bedTemperature) : 0
+                    }
+
+                    requestPaint()
+                }
 
                 onPaint: {
                     var ctx = temperatureGraph.getContext('2d');
@@ -565,18 +621,40 @@ Column
                             ctx.closePath();
                             ctx.stroke();
                         }
+                    }
 
-                        ctx.fillText((5-i) * 50, 0, temperatureGraph.height / 6 * (i+1))
+                    for(var k = 0; k < nozzleTemperatureValues.length; k++)
+                    {
+                        ctx.strokeStyle = lineStyles[k];
+
+                        ctx.beginPath();
+                        ctx.moveTo(0, temperatureGraph.height + 1);
+                        for(var i = 0; i < nozzleTemperatureValues[k].length; i++)
+                        {
+                            ctx.lineTo(i * temperatureGraph.width / (nozzleTemperatureValues[k].length - 1), temperatureGraph.height - nozzleTemperatureValues[k][i] / 300 * temperatureGraph.height);
+                        }
+                        ctx.lineTo(temperatureGraph.width, temperatureGraph.height + 1);
+                        ctx.closePath();
                         ctx.stroke();
                     }
 
-                    ctx.strokeStyle = Qt.rgba(1, 0, 0, 1);
+                    ctx.strokeStyle = bedLineStyle;
 
                     ctx.beginPath();
-                    ctx.moveTo(0, 0);
-                    ctx.lineTo(temperatureGraph.width, temperatureGraph.height);
+                    ctx.moveTo(0, temperatureGraph.height + 1);
+                    for(var i = 0; i < bedTemperatureValues.length; i++)
+                    {
+                        ctx.lineTo(i * temperatureGraph.width / (bedTemperatureValues.length - 1), temperatureGraph.height - bedTemperatureValues[i] / 300 * temperatureGraph.height);
+                    }
+                    ctx.lineTo(temperatureGraph.width, temperatureGraph.height + 1);
                     ctx.closePath();
                     ctx.stroke();
+
+                    ctx.fillStyle = Qt.rgba(0, 0, 0, 1);
+                    for(var i = 0; i < 6; i++)
+                    {
+                        ctx.fillText((5-i) * 50, 0, temperatureGraph.height / 6 * (i+1))
+                    }
 
                     ctx.restore();
                 }
