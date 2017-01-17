@@ -293,10 +293,38 @@ class PrinterOutputDevice(QObject, OutputDevice):
     def _setTargetHotendTemperature(self, index, temperature):
         Logger.log("w", "_setTargetHotendTemperature is not implemented by this output device")
 
+    ##  Set the (target) hotend temperature and wait
+    #   This function is "final" (do not re-implement)
+    #   /param index the index of the hotend that needs to change temperature
+    #   /param temperature The temperature it needs to change to (in deg celsius).
+    #   /sa _setTargetHotendTemperatureAndWait implementation function
+    @pyqtSlot(int, int)
+    def setTargetHotendTemperatureAndWait(self, index, temperature):
+        self._setTargetHotendTemperatureAndWait(index, temperature)
+
+        if self._target_hotend_temperatures[index] != temperature:
+            self._target_hotend_temperatures[index] = temperature
+            self.targetHotendTemperaturesChanged.emit()
+
+    ##  Implementation function of setTargetHotendTemperatureAndWait.
+    #   /param index Index of the hotend to set the temperature of
+    #   /param temperature Temperature to set the hotend to (in deg C)
+    #   /sa setTargetHotendTemperatureAndWait
+    def _setTargetHotendTemperatureAndWait(self, index, temperature):
+        Logger.log("w", "_setTargetHotendTemperatureAndWait is not implemented by this output device")
+
     @pyqtSlot(int)
     def preheatHotend(self, index):
         temperature = Application.getInstance().getGlobalContainerStack().getProperty("material_print_temperature", "value")
         self.setTargetHotendTemperature(index, temperature)
+
+    @pyqtSlot(int)
+    def coldPull(self, index):
+        temperature = Application.getInstance().getGlobalContainerStack().getProperty("material_print_temperature", "value")
+        self.setTargetHotendTemperatureAndWait(index, temperature)
+        self.extrude(1)
+        temperature = Application.getInstance().getGlobalContainerStack().getProperty("material_wipe_temperature", "value")
+        self.setTargetHotendTemperatureAndWait(index, temperature)
 
     @pyqtSlot()
     def preheatBed(self):

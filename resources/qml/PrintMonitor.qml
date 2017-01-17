@@ -742,9 +742,8 @@ Column
 
                     onClicked:
                     {
-
+                        connectedPrinter.coldPull(extruderSelector.currentIndex)
                     }
-                    enabled: false
                 }
             }
         }
