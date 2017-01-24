@@ -674,10 +674,8 @@ Column
 
                     onClicked:
                     {
-
+                        connectedPrinter.wipeNozzle()
                     }
-
-                    enabled: false
                 }
 
                 Button

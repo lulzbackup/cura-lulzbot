@@ -69,6 +69,15 @@
                     "settable_per_extruder": false,
                     "settable_per_meshgroup": false
                 },
+                "machine_wipe_gcode":
+                {
+                    "label": "Wipe GCode",
+                    "description": "Gcode commands to be executed at the very start - separated by \\n.",
+                    "type": "str",
+                    "settable_per_mesh": false,
+                    "settable_per_extruder": false,
+                    "settable_per_meshgroup": false
+                },
                 "machine_port":
                 {
                     "label": "Machine Port",

@@ -66,6 +66,10 @@
         {
             "default_value_from_file": "lulzbot_mini_end"
         },
+        "machine_wipe_gcode":
+        {
+            "default_value_from_file": "lulzbot_mini_wipe"
+        },
         "material_soften_temperature":
         {
             "enabled": "False"

@@ -327,6 +327,13 @@ class PrinterOutputDevice(QObject, OutputDevice):
         self.setTargetHotendTemperatureAndWait(index, temperature)
 
     @pyqtSlot()
+    def wipeNozzle(self):
+        self._wipeNozzle()
+
+    def _wipeNozzle(self):
+        Logger.log("w", "_wipeNozzle is not implemented by this output device")
+
+    @pyqtSlot()
     def preheatBed(self):
         temperature = Application.getInstance().getGlobalContainerStack().getProperty("material_bed_temperature", "value")
         self.setTargetBedTemperature(temperature)

@@ -148,6 +148,16 @@ class USBPrinterOutputDevice(PrinterOutputDevice):
         self._updateJobState("printing")
         self.printGCode(gcode_list)
 
+    def _wipeNozzle(self):
+        code = Application.getInstance().getGlobalContainerStack().getProperty("machine_wipe_gcode", "value")
+        if not code:
+            Logger.log("w", "This device doesn't support wiping")
+            return
+        code = code.replace("{material_wipe_temperature}", str(Application.getInstance().getGlobalContainerStack().getProperty("material_wipe_temperature", "value"))).split("\n")
+        self.writeStarted.emit(self)
+        self._updateJobState("printing")
+        self.printGCode(code)
+
     def _moveHead(self, x, y, z, speed):
         self._sendCommand("G91")
         self._sendCommand("G0 X%s Y%s Z%s F%s" % (x, y, z, speed))
