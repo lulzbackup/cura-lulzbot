@@ -204,7 +204,7 @@ class USBPrinterOutputDevice(PrinterOutputDevice):
 
     ##  Try to connect the serial. This simply starts the thread, which runs _connect.
     def _connect(self):
-        if not self._updating_firmware and not self._connect_thread.isAlive():
+        if not self._updating_firmware and not self._connect_thread.isAlive() and self._connection_state in [ConnectionState.closed, ConnectionState.error]:
             self._connect_thread.start()
 
     ##  Private function (threaded) that actually uploads the firmware.
@@ -443,7 +443,7 @@ class USBPrinterOutputDevice(PrinterOutputDevice):
                 Logger.log("d", "PrinterConnection.close: %s (expected)", e)
                 pass # This should work, but it does fail sometimes for some reason
 
-        self._connect_thread = threading.Thread(target = self._connect)
+        self._connect_thread = threading.Thread(target = self._connect_thread_function)
         self._connect_thread.daemon = True
 
         self.setConnectionState(ConnectionState.closed)
