@@ -12,6 +12,7 @@ from PyQt5.QtCore import QUrl, QTimer, pyqtSignal, pyqtProperty, pyqtSlot, QCore
 from PyQt5.QtGui import QImage, QDesktopServices
 
 import json
+import os.path
 from time import time
 
 i18n_catalog = i18nCatalog("cura")
@@ -34,19 +35,45 @@ class OctoPrintOutputDevice(PrinterOutputDevice):
         self._gcode = None
         self._auto_print = True
 
-        ##  We start with a single extruder, but update this when we get data from octoprint
+        # We start with a single extruder, but update this when we get data from octoprint
         self._num_extruders_set = False
         self._num_extruders = 1
 
-        self._api_version = "1"
+        # Try to get version information from plugin.json
+        plugin_file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "plugin.json")
+        try:
+            with open(plugin_file_path) as plugin_file:
+                plugin_info = json.load(plugin_file)
+                plugin_version = plugin_info["version"]
+        except:
+            # The actual version info is not critical to have so we can continue
+            plugin_version = "Unknown"
+            Logger.logException("w", "Could not get version information for the plugin")
+
+        self._user_agent_header = "User-Agent".encode()
+        self._user_agent = ("%s/%s %s/%s" % (
+            Application.getInstance().getApplicationName(),
+            Application.getInstance().getVersion(),
+            "OctoPrintPlugin",
+            Application.getInstance().getVersion()
+        )).encode()
+
         self._api_prefix = "api/"
-        self._api_header = "X-Api-Key"
+        self._api_header = "X-Api-Key".encode()
         self._api_key = None
 
-        protocol = "https" if properties.get(b'useHttps') == b"true" else "http"
-        self._base_url = "%s://%s:%d%s" % (protocol, self._address, self._port, self._path)
+        self._protocol = "https" if properties.get(b'useHttps') == b"true" else "http"
+        self._base_url = "%s://%s:%d%s" % (self._protocol, self._address, self._port, self._path)
         self._api_url = self._base_url + self._api_prefix
-        self._camera_url = "%s://%s:8080/?action=stream" % (protocol, self._address)
+
+        self._basic_auth_header = "Authentication".encode()
+        self._basic_auth_data = None
+        basic_auth_username = properties.get(b"userName", b"").decode("utf-8")
+        basic_auth_password = properties.get(b"password", b"").decode("utf-8")
+        if basic_auth_username and basic_auth_password:
+            self._basic_auth_data = ("%s:%s" % (basic_auth_username, basic_auth_username)).encode()
+
+        self._monitor_view_qml_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "MonitorItem.qml")
 
         self.setPriority(2) # Make sure the output device gets selected above local file output
         self.setName(key)
@@ -60,28 +87,19 @@ class OctoPrintOutputDevice(PrinterOutputDevice):
         self._manager = QNetworkAccessManager()
         self._manager.finished.connect(self._onRequestFinished)
 
-        ##  Hack to ensure that the qt networking stuff isn't garbage collected (unless we want it to)
-        self._printer_request = None
+        ##  Ensure that the qt networking stuff isn't garbage collected (unless we want it to)
+        self._settings_reply = None
         self._printer_reply = None
+        self._job_reply = None
+        self._command_reply = None
 
-        self._print_job_request = None
-        self._print_job_reply = None
-
-        self._image_request = None
         self._image_reply = None
         self._stream_buffer = b""
         self._stream_buffer_start_index = -1
 
-        self._post_request = None
         self._post_reply = None
         self._post_multi_part = None
         self._post_part = None
-
-        self._job_request = None
-        self._job_reply = None
-
-        self._command_request = None
-        self._command_reply = None
 
         self._progress_message = None
         self._error_message = None
@@ -94,6 +112,12 @@ class OctoPrintOutputDevice(PrinterOutputDevice):
 
         self._camera_image_id = 0
         self._camera_image = QImage()
+        self._camera_mirror = ""
+        self._camera_rotation = 0
+        self._camera_url = ""
+        self._camera_shares_proxy = False
+
+        self._sd_supported = False
 
         self._connection_state_before_timeout = None
 
@@ -126,7 +150,7 @@ class OctoPrintOutputDevice(PrinterOutputDevice):
 
     ##  Set the API key of this OctoPrint instance
     def setApiKey(self, api_key):
-        self._api_key = api_key
+        self._api_key = api_key.encode()
 
     ##  Name of the instance (as returned from the zeroConf properties)
     @pyqtProperty(str, constant = True)
@@ -158,15 +182,27 @@ class OctoPrintOutputDevice(PrinterOutputDevice):
     def baseURL(self):
         return self._base_url
 
+    cameraOrientationChanged = pyqtSignal()
+
+    @pyqtProperty("QVariantMap", notify = cameraOrientationChanged)
+    def cameraOrientation(self):
+        return {
+            "mirror": self._camera_mirror,
+            "rotation": self._camera_rotation,
+        }
+
     def _startCamera(self):
         global_container_stack = Application.getInstance().getGlobalContainerStack()
-        if not global_container_stack or not parseBool(global_container_stack.getMetaDataEntry("octoprint_show_camera", False)):
+        if not global_container_stack or not parseBool(global_container_stack.getMetaDataEntry("octoprint_show_camera", False)) or self._camera_url == "":
             return
 
         # Start streaming mjpg stream
         url = QUrl(self._camera_url)
-        self._image_request = QNetworkRequest(url)
-        self._image_reply = self._manager.get(self._image_request)
+        image_request = QNetworkRequest(url)
+        image_request.setRawHeader(self._user_agent_header, self._user_agent)
+        if self._camera_shares_proxy and self._basic_auth_data:
+            image_request.setRawHeader(self._basic_auth_header, self._basic_auth_data)
+        self._image_reply = self._manager.get(image_request)
         self._image_reply.downloadProgress.connect(self._onStreamDownloadProgress)
 
     def _stopCamera(self):
@@ -174,7 +210,7 @@ class OctoPrintOutputDevice(PrinterOutputDevice):
             self._image_reply.abort()
             self._image_reply.downloadProgress.disconnect(self._onStreamDownloadProgress)
             self._image_reply = None
-        self._image_request = None
+        image_request = None
 
         self._stream_buffer = b""
         self._stream_buffer_start_index = -1
@@ -245,16 +281,10 @@ class OctoPrintOutputDevice(PrinterOutputDevice):
                 self.setConnectionState(ConnectionState.error)
 
         ## Request 'general' printer data
-        url = QUrl(self._api_url + "printer")
-        self._printer_request = QNetworkRequest(url)
-        self._printer_request.setRawHeader(self._api_header.encode(), self._api_key.encode())
-        self._printer_reply = self._manager.get(self._printer_request)
+        self._printer_reply = self._manager.get(self._createApiRequest("printer"))
 
         ## Request print_job data
-        url = QUrl(self._api_url + "job")
-        self._job_request = QNetworkRequest(url)
-        self._job_request.setRawHeader(self._api_header.encode(), self._api_key.encode())
-        self._job_reply = self._manager.get(self._job_request)
+        self._job_reply = self._manager.get(self._createApiRequest("job"))
 
     def _createNetworkManager(self):
         if self._manager:
@@ -262,6 +292,14 @@ class OctoPrintOutputDevice(PrinterOutputDevice):
 
         self._manager = QNetworkAccessManager()
         self._manager.finished.connect(self._onRequestFinished)
+
+    def _createApiRequest(self, end_point):
+        request = QNetworkRequest(QUrl(self._api_url + end_point))
+        request.setRawHeader(self._user_agent_header, self._user_agent)
+        request.setRawHeader(self._api_header, self._api_key)
+        if self._basic_auth_data:
+            request.setRawHeader(self._basic_auth_header, self._basic_auth_data)
+        return request
 
     def close(self):
         self._updateJobState("")
@@ -295,6 +333,9 @@ class OctoPrintOutputDevice(PrinterOutputDevice):
         self._last_response_time = None
         self.setAcceptsCommands(False)
         self.setConnectionText(i18n_catalog.i18nc("@info:status", "Connecting to OctoPrint on {0}").format(self._key))
+
+        ## Request 'settings' dump
+        self._settings_reply = self._manager.get(self._createApiRequest("settings"))
 
     ##  Stop requesting data from the instance
     def disconnect(self):
@@ -334,18 +375,30 @@ class OctoPrintOutputDevice(PrinterOutputDevice):
         if not global_container_stack:
             return
 
+        self._auto_print = parseBool(global_container_stack.getMetaDataEntry("octoprint_auto_print", True))
+
+        if self.jobState not in ["ready", ""]:
+            if self.jobState == "offline":
+                self._error_message = Message(i18n_catalog.i18nc("@info:status", "OctoPrint is offline. Unable to start a new job."))
+            elif self._auto_print:
+                self._error_message = Message(i18n_catalog.i18nc("@info:status", "OctoPrint is busy. Unable to start a new job."))
+            else:
+                # allow queueing the job even if OctoPrint is currently busy if autoprinting is disabled
+                self._error_message = None
+
+            if self._error_message:
+                self._error_message.show()
+                return
+
         self._preheat_timer.stop()
 
-        self._auto_print = parseBool(global_container_stack.getMetaDataEntry("octoprint_auto_print", True))
         if self._auto_print:
             Application.getInstance().showPrintMonitor.emit(True)
 
-        if self.jobState != "ready" and self.jobState != "":
-            self._error_message = Message(i18n_catalog.i18nc("@info:status", "OctoPrint is printing. Unable to start a new job."))
-            self._error_message.show()
-            return
         try:
             self._progress_message = Message(i18n_catalog.i18nc("@info:status", "Sending data to OctoPrint"), 0, False, -1)
+            self._progress_message.addAction("Cancel", i18n_catalog.i18nc("@action:button", "Cancel"), None, "")
+            self._progress_message.actionTriggered.connect(self._cancelSendGcode)
             self._progress_message.show()
 
             ## Mash the data into single string
@@ -384,17 +437,12 @@ class OctoPrintOutputDevice(PrinterOutputDevice):
             self._post_multi_part.append(self._post_part)
 
             destination = "local"
-            if parseBool(global_container_stack.getMetaDataEntry("octoprint_store_sd", False)):
+            if self._sd_supported and parseBool(global_container_stack.getMetaDataEntry("octoprint_store_sd", False)):
                 destination = "sdcard"
 
-            url = QUrl(self._api_url + "files/" + destination)
-
-            ##  Create the QT request
-            self._post_request = QNetworkRequest(url)
-            self._post_request.setRawHeader(self._api_header.encode(), self._api_key.encode())
-
             ##  Post request + data
-            self._post_reply = self._manager.post(self._post_request, self._post_multi_part)
+            post_request = self._createApiRequest("files/" + destination)
+            self._post_reply = self._manager.post(post_request, self._post_multi_part)
             self._post_reply.uploadProgress.connect(self._onUploadProgress)
 
             self._gcode = None
@@ -407,6 +455,18 @@ class OctoPrintOutputDevice(PrinterOutputDevice):
             self._progress_message.hide()
             Logger.log("e", "An exception occurred in network connection: %s" % str(e))
 
+    def _cancelSendGcode(self, message_id, action_id):
+        if self._post_reply:
+            Logger.log("d", "Stopping upload because the user pressed cancel.")
+            try:
+                self._post_reply.uploadProgress.disconnect(self._onUploadProgress)
+            except TypeError:
+                pass  # The disconnection can fail on mac in some cases. Ignore that.
+
+            self._post_reply.abort()
+            self._post_reply = None
+        self._progress_message.hide()
+
     def _sendCommand(self, command):
         self._sendCommandToApi("printer/command", command)
         Logger.log("d", "Sent gcode command to OctoPrint instance: %s", command)
@@ -415,14 +475,12 @@ class OctoPrintOutputDevice(PrinterOutputDevice):
         self._sendCommandToApi("job", command)
         Logger.log("d", "Sent job command to OctoPrint instance: %s", command)
 
-    def _sendCommandToApi(self, endpoint, command):
-        url = QUrl(self._api_url + endpoint)
-        self._command_request = QNetworkRequest(url)
-        self._command_request.setRawHeader(self._api_header.encode(), self._api_key.encode())
-        self._command_request.setHeader(QNetworkRequest.ContentTypeHeader, "application/json")
+    def _sendCommandToApi(self, end_point, command):
+        command_request = self._createApiRequest(end_point)
+        command_request.setHeader(QNetworkRequest.ContentTypeHeader, "application/json")
 
         data = "{\"command\": \"%s\"}" % command
-        self._command_reply = self._manager.post(self._command_request, data.encode())
+        self._command_reply = self._manager.post(command_request, data.encode())
 
     ##  Pre-heats the heated bed of the printer.
     #
@@ -454,12 +512,6 @@ class OctoPrintOutputDevice(PrinterOutputDevice):
         Logger.log("d", "Setting hotend %s temperature to %s", index, temperature)
         self._sendCommand("M104 T%s S%s" % (index, temperature))
 
-    def _setTargetHotendTemperatureAndWait(self, index, temperature):
-        if index == -1:
-            index = self._current_hotend
-        Logger.log("d", "Setting hotend %s temperature to %s", index, temperature)
-        self._sendCommand("M109 T%s S%s" % (index, temperature))
-
     def _setHeadPosition(self, x, y , z, speed):
         self._sendCommand("G0 X%s Y%s Z%s F%s" % (x, y, z, speed))
 
@@ -472,15 +524,6 @@ class OctoPrintOutputDevice(PrinterOutputDevice):
     def _setHeadZ(self, z, speed):
         self._sendCommand("G0 Y%s F%s" % (z, speed))
 
-    def _homeX(self):
-        self._sendCommand("G28 X")
-
-    def _homeY(self):
-        self._sendCommand("G28 Y")
-
-    def _homeXY(self):
-        self._sendCommand("G28 XY")
-
     def _homeHead(self):
         self._sendCommand("G28")
 
@@ -491,14 +534,6 @@ class OctoPrintOutputDevice(PrinterOutputDevice):
         self._sendCommand("G91")
         self._sendCommand("G0 X%s Y%s Z%s F%s" % (x, y, z, speed))
         self._sendCommand("G90")
-
-    def _extrude(self, e, speed):
-        self._sendCommand("G91")
-        self._sendCommand("G0 E%s F%s" % (e, speed))
-        self._sendCommand("G90")
-
-    def _setHotend(self, num):
-        self._sendCommand("T%i" % num)
 
     ##  Handler for all requests that have finished.
     def _onRequestFinished(self, reply):
@@ -523,7 +558,7 @@ class OctoPrintOutputDevice(PrinterOutputDevice):
             return
 
         if reply.operation() == QNetworkAccessManager.GetOperation:
-            if "printer" in reply.url().toString():  # Status update from /printer.
+            if self._api_prefix + "printer" in reply.url().toString():  # Status update from /printer.
                 if http_status_code == 200:
                     if not self.acceptsCommands:
                         self.setAcceptsCommands(True)
@@ -531,53 +566,64 @@ class OctoPrintOutputDevice(PrinterOutputDevice):
 
                     if self._connection_state == ConnectionState.connecting:
                         self.setConnectionState(ConnectionState.connected)
-                    json_data = json.loads(bytes(reply.readAll()).decode("utf-8"))
+                    try:
+                        json_data = json.loads(bytes(reply.readAll()).decode("utf-8"))
+                    except json.decoder.JSONDecodeError:
+                        Logger.log("w", "Received invalid JSON from octoprint instance.")
+                        json_data = {}
 
-                    if not self._num_extruders_set:
-                        self._num_extruders = 0
-                        while "tool%d" % self._num_extruders in json_data["temperature"]:
-                            self._num_extruders = self._num_extruders + 1
+                    if "temperature" in json_data:
+                        if not self._num_extruders_set:
+                            self._num_extruders = 0
+                            while "tool%d" % self._num_extruders in json_data["temperature"]:
+                                self._num_extruders = self._num_extruders + 1
 
-                        # Reinitialise from PrinterOutputDevice to match the new _num_extruders
-                        self._hotend_temperatures = [0] * self._num_extruders
-                        self._target_hotend_temperatures = [0] * self._num_extruders
+                            # Reinitialise from PrinterOutputDevice to match the new _num_extruders
+                            self._hotend_temperatures = [0] * self._num_extruders
+                            self._target_hotend_temperatures = [0] * self._num_extruders
 
-                        self._num_extruders_set = True
+                            self._num_extruders_set = True
 
-                    # Check for hotend temperatures
-                    for index in range(0, self._num_extruders):
-                        temperature = json_data["temperature"]["tool%d" % index]["actual"] if ("tool%d" % index) in json_data["temperature"] else 0
-                        self._setHotendTemperature(index, temperature)
+                        # Check for hotend temperatures
+                        for index in range(0, self._num_extruders):
+                            temperature = json_data["temperature"]["tool%d" % index]["actual"] if ("tool%d" % index) in json_data["temperature"] else 0
+                            self._setHotendTemperature(index, temperature)
 
-                    bed_temperature = json_data["temperature"]["bed"]["actual"] if "bed" in json_data["temperature"] else 0
-                    self._setBedTemperature(bed_temperature)
+                        bed_temperature = json_data["temperature"]["bed"]["actual"] if "bed" in json_data["temperature"] else 0
+                        self._setBedTemperature(bed_temperature)
 
                     job_state = "offline"
-                    if json_data["state"]["flags"]["error"]:
-                        job_state = "error"
-                    elif json_data["state"]["flags"]["paused"]:
-                        job_state = "paused"
-                    elif json_data["state"]["flags"]["printing"]:
-                        job_state = "printing"
-                    elif json_data["state"]["flags"]["ready"]:
-                        job_state = "ready"
+                    if "state" in json_data:
+                        if json_data["state"]["flags"]["error"]:
+                            job_state = "error"
+                        elif json_data["state"]["flags"]["paused"]:
+                            job_state = "paused"
+                        elif json_data["state"]["flags"]["printing"]:
+                            job_state = "printing"
+                        elif json_data["state"]["flags"]["ready"]:
+                            job_state = "ready"
                     self._updateJobState(job_state)
+
                 elif http_status_code == 401:
-                    self.setAcceptsCommands(False)
+                    self._updateJobState("offline")
                     self.setConnectionText(i18n_catalog.i18nc("@info:status", "OctoPrint on {0} does not allow access to print").format(self._key))
                 elif http_status_code == 409:
                     if self._connection_state == ConnectionState.connecting:
                         self.setConnectionState(ConnectionState.connected)
 
-                    self.setAcceptsCommands(False)
+                    self._updateJobState("offline")
                     self.setConnectionText(i18n_catalog.i18nc("@info:status", "The printer connected to OctoPrint on {0} is not operational").format(self._key))
                 else:
-                    self.setAcceptsCommands(False)
+                    self._updateJobState("offline")
                     Logger.log("w", "Received an unexpected returncode: %d", http_status_code)
 
-            elif "job" in reply.url().toString():  # Status update from /job:
+            elif self._api_prefix + "job" in reply.url().toString():  # Status update from /job:
                 if http_status_code == 200:
-                    json_data = json.loads(bytes(reply.readAll()).decode("utf-8"))
+                    try:
+                        json_data = json.loads(bytes(reply.readAll()).decode("utf-8"))
+                    except json.decoder.JSONDecodeError:
+                        Logger.log("w", "Received invalid JSON from octoprint instance.")
+                        json_data = {}
 
                     progress = json_data["progress"]["completion"]
                     if progress:
@@ -600,8 +646,52 @@ class OctoPrintOutputDevice(PrinterOutputDevice):
                 else:
                     pass  # TODO: Handle errors
 
+            elif self._api_prefix + "settings" in reply.url().toString():  # OctoPrint settings dump from /settings:
+                if http_status_code == 200:
+                    try:
+                        json_data = json.loads(bytes(reply.readAll()).decode("utf-8"))
+                    except json.decoder.JSONDecodeError:
+                        Logger.log("w", "Received invalid JSON from octoprint instance.")
+                        json_data = {}
+
+                    if "feature" in json_data and "sdSupport" in json_data["feature"]:
+                        self._sd_supported = json_data["feature"]["sdSupport"]
+
+                    if "webcam" in json_data and "streamUrl" in json_data["webcam"]:
+                        self._camera_shares_proxy = False
+                        stream_url = json_data["webcam"]["streamUrl"]
+                        if not stream_url: #empty string or None
+                            self._camera_url = ""
+                        elif stream_url[:4].lower() == "http": # absolute uri
+                            self._camera_url = stream_url
+                        elif stream_url[:2] == "//": # protocol-relative
+                            self._camera_url = "%s:%s" % (self._protocol, stream_url)
+                        elif stream_url[:1] == ":": # domain-relative (on another port)
+                            self._camera_url = "%s://%s%s" % (self._protocol, self._address, stream_url)
+                        elif stream_url[:1] == "/": # domain-relative (on same port)
+                            self._camera_url = "%s://%s:%d%s" % (self._protocol, self._address, self._port, stream_url)
+                            self._camera_shares_proxy = True
+                        else:
+                            Logger.log("w", "Unusable stream url received: %s", stream_url)
+                            self._camera_url = ""
+
+                        Logger.log("d", "Set OctoPrint camera url to %s", self._camera_url)
+
+                        self._camera_rotation = -90 if json_data["webcam"]["rotate90"] else 0
+                        if json_data["webcam"]["flipH"] and json_data["webcam"]["flipV"]:
+                            self._camera_mirror = False
+                            self._camera_rotation += 180
+                        elif json_data["webcam"]["flipH"]:
+                            self._camera_mirror = True
+                        elif json_data["webcam"]["flipV"]:
+                            self._camera_mirror = True
+                            self._camera_rotation += 180
+                        else:
+                            self._camera_mirror = False
+                        self.cameraOrientationChanged.emit()
+
         elif reply.operation() == QNetworkAccessManager.PostOperation:
-            if "files" in reply.url().toString():  # Result from /files command:
+            if self._api_prefix + "files" in reply.url().toString():  # Result from /files command:
                 if http_status_code == 201:
                     Logger.log("d", "Resource created on OctoPrint instance: %s", reply.header(QNetworkRequest.LocationHeader).toString())
                 else:
@@ -622,7 +712,7 @@ class OctoPrintOutputDevice(PrinterOutputDevice):
                     message.actionTriggered.connect(self._onMessageActionTriggered)
                     message.show()
 
-            elif "job" in reply.url().toString():  # Result from /job command:
+            elif self._api_prefix + "job" in reply.url().toString():  # Result from /job command:
                 if http_status_code == 204:
                     Logger.log("d", "Octoprint command accepted")
                 else:
