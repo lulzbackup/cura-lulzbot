@@ -199,7 +199,6 @@ Item {
                     id: timeIcon
                     anchors.left: parent.left
                     anchors.top: parent.top
-                    anchors.verticalCenter: parent.verticalCenter
                     width: UM.Theme.getSize("save_button_specs_icons").width
                     height: UM.Theme.getSize("save_button_specs_icons").height
                     sourceSize.width: width
