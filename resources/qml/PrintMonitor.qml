@@ -296,7 +296,7 @@ ScrollView
 	        height: machineHeatedBed.properties.value == "True" ? UM.Theme.getSize("sidebar_extruder_box").height : 0
 	        visible: machineHeatedBed.properties.value == "True"
 
-	        Label //Build plate label.
+	        Text //Build plate label.
 	        {
 	            text: catalog.i18nc("@label", "Build plate")
 	            font: UM.Theme.getFont("default")
@@ -305,10 +305,10 @@ ScrollView
 	            anchors.top: parent.top
 	            anchors.margins: UM.Theme.getSize("default_margin").width
 	        }
-            Label //Bed target temperature.
+	        Text //Target temperature.
 	        {
 	            id: bedTargetTemperature
-                text: (connectedPrinter != null && connectedPrinter.targetBedTemperature != 0) ? connectedPrinter.targetBedTemperature + "°C" : ""
+	            text: connectedPrinter != null ? connectedPrinter.targetBedTemperature + "°C" : ""
 	            font: UM.Theme.getFont("small")
 	            color: UM.Theme.getColor("text_inactive")
 	            anchors.right: parent.right
@@ -337,7 +337,7 @@ ScrollView
 	                }
 	            }
 	        }
-            Label //Current bed temperature.
+	        Text //Current temperature.
 	        {
 	            id: bedCurrentTemperature
 	            text: connectedPrinter != null ? connectedPrinter.bedTemperature + "°C" : ""
@@ -372,7 +372,17 @@ ScrollView
 	        Rectangle //Input field for pre-heat temperature.
 	        {
 	            id: preheatTemperatureControl
-	            color: !enabled ? UM.Theme.getColor("setting_control_disabled") : UM.Theme.getColor("setting_validation_ok")
+	            color: !enabled ? UM.Theme.getColor("setting_control_disabled") : showError ? UM.Theme.getColor("setting_validation_error") : UM.Theme.getColor("setting_validation_ok")
+	            property var showError:
+	            {
+	                if(bedTemperature.properties.maximum_value != "None" && bedTemperature.properties.maximum_value <  parseInt(preheatTemperatureInput.text))
+	                {
+	                    return true;
+	                } else
+	                {
+	                    return false;
+	                }
+	            }
 	            enabled:
 	            {
 	                if (connectedPrinter == null)
@@ -405,9 +415,9 @@ ScrollView
 	                color: UM.Theme.getColor("setting_control_highlight")
 	                opacity: preheatTemperatureControl.hovered ? 1.0 : 0
 	            }
-	            Label //Maximum temperature indication.
+	            Text //Maximum temperature indication.
 	            {
-                    text: (bedTemperature.properties.maximum_value != "None" ? bedTemperature.properties.maximum_value : "") + "°C"
+	                text: (bedTemperature.properties.maximum_value != "None" ? bedTemperature.properties.maximum_value : "") + "°C"
 	                color: UM.Theme.getColor("setting_unit")
 	                font: UM.Theme.getFont("default")
 	                anchors.right: parent.right
@@ -458,13 +468,11 @@ ScrollView
 	                        // We have a resolve function. Indicates that the setting is not settable per extruder and that
 	                        // we have to choose between the resolved value (default) and the global value
 	                        // (if user has explicitly set this).
-                            //text = bedTemperature.resolve;
-                            text = "";
+	                        text = bedTemperature.resolve;
 	                    }
 	                    else
-                        {
-                            //text = bedTemperature.properties.value;
-                            text = "";
+	                    {
+	                        text = bedTemperature.properties.value;
 	                    }
 	                }
 	            }
@@ -1191,9 +1199,7 @@ ScrollView
                         }
 	                }
 	            }
-
-
-
+	            
 	            Row
 	            {
 	                id: positionLabel

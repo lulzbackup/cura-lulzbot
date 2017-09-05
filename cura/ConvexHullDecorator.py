@@ -260,7 +260,11 @@ class ConvexHullDecorator(SceneNodeDecorator):
     #   \return New Polygon instance that is offset with everything that
     #   influences the collision area.
     def _offsetHull(self, convex_hull):
-        horizontal_expansion = self._getSettingProperty("xy_offset", "value")
+        horizontal_expansion = max(
+            self._getSettingProperty("xy_offset", "value"),
+            self._getSettingProperty("xy_offset_layer_0", "value")
+        )
+
         mold_width = 0
         if self._getSettingProperty("mold_enabled", "value"):
             mold_width = self._getSettingProperty("mold_width", "value")
@@ -301,7 +305,7 @@ class ConvexHullDecorator(SceneNodeDecorator):
             self._onChanged()
 
     ##   Private convenience function to get a setting from the correct extruder (as defined by limit_to_extruder property).
-    def _getSettingProperty(self, setting_key, property="value"):
+    def _getSettingProperty(self, setting_key, property = "value"):
         per_mesh_stack = self._node.callDecoration("getStack")
         if per_mesh_stack:
             return per_mesh_stack.getProperty(setting_key, property)
@@ -317,10 +321,8 @@ class ConvexHullDecorator(SceneNodeDecorator):
                 extruder_stack_id = ExtruderManager.getInstance().extruderIds["0"]
             extruder_stack = ContainerRegistry.getInstance().findContainerStacks(id = extruder_stack_id)[0]
             return extruder_stack.getProperty(setting_key, property)
-        else: #Limit_to_extruder is set. Use that one.
-            extruder_stack_id = ExtruderManager.getInstance().extruderIds[str(extruder_index)]
-            stack = ContainerRegistry.getInstance().findContainerStacks(id = extruder_stack_id)[0]
-            return stack.getProperty(setting_key, property)
+        else: #Limit_to_extruder is set. The global stack handles this then.
+            return self._global_stack.getProperty(setting_key, property)
 
     ## Returns true if node is a descendant or the same as the root node.
     def __isDescendant(self, root, node):
@@ -337,4 +339,4 @@ class ConvexHullDecorator(SceneNodeDecorator):
     ##  Settings that change the convex hull.
     #
     #   If these settings change, the convex hull should be recalculated.
-    _influencing_settings = {"xy_offset", "mold_enabled", "mold_width"}
+    _influencing_settings = {"xy_offset", "xy_offset_layer_0", "mold_enabled", "mold_width"}

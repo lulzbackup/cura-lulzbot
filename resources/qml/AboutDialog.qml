@@ -22,15 +22,15 @@ UM.Dialog
     Image
     {
         id: logo
-        width: base.minimumWidth * 0.85
-        height: width * (1/4.25)
+        width: (base.minimumWidth * 0.85) | 0
+        height: (width * (1/4.25)) | 0
 
         source: UM.Theme.getImage("logo")
 
         sourceSize.width: width
         sourceSize.height: height
         anchors.top: parent.top
-        anchors.topMargin: (base.minimumWidth - width) / 2
+        anchors.topMargin: ((base.minimumWidth - width) / 2) | 0
         anchors.horizontalCenter: parent.horizontalCenter
 
         UM.I18nCatalog{id: catalog; name:"cura"}
@@ -39,12 +39,12 @@ UM.Dialog
     Label
     {
         id: version
-	text: "Version %1\nCura %2\nUranium %3\nCuraEngine %4\nlibArcus %5\n Data %6\n Build %7\nlibSavitar %8".arg(Printer.getComponentVersion("cura_version")).arg(Printer.getComponentVersion("cura")).arg(Printer.getComponentVersion("uranium")).arg(Printer.getComponentVersion("engine")).arg(Printer.getComponentVersion("libarcus")).arg(Printer.getComponentVersion("binarydata")).arg(Printer.getComponentVersion("build")).arg(Printer.getComponentVersion("libsavitar"))
+        text: "Version %1\nCura %2\nUranium %3\nCuraEngine %4\nlibArcus %5\n Data %6\n Build %7\nlibSavitar %8".arg(Printer.getComponentVersion("cura_version")).arg(Printer.getComponentVersion("cura")).arg(Printer.getComponentVersion("uranium")).arg(Printer.getComponentVersion("engine")).arg(Printer.getComponentVersion("libarcus")).arg(Printer.getComponentVersion("binarydata")).arg(Printer.getComponentVersion("build")).arg(Printer.getComponentVersion("libsavitar"))
         font: UM.Theme.getFont("large")
         anchors.right : logo.right
         anchors.top: logo.bottom
-        anchors.topMargin: UM.Theme.getSize("default_margin").height / 2
         horizontalAlignment: Text.AlignRight
+        anchors.topMargin: (UM.Theme.getSize("default_margin").height / 2) | 0
     }
 
     Label
@@ -127,7 +127,7 @@ UM.Dialog
                 projectsModel.append({ name:"PyQt", description: catalog.i18nc("@label", "GUI framework bindings"), license: "GPL", url: "https://riverbankcomputing.com/software/pyqt" });
                 projectsModel.append({ name:"SIP", description: catalog.i18nc("@label", "C/C++ Binding library"), license: "GPL", url: "https://riverbankcomputing.com/software/sip" });
                 projectsModel.append({ name:"Protobuf", description: catalog.i18nc("@label", "Data interchange format"), license: "BSD", url: "https://developers.google.com/protocol-buffers" });
-                projectsModel.append({ name:"SciPy", description: catalog.i18nc("@label", "Support library for scientific computing "), license: "BSD-new", url: "https://www.scipy.org/" });
+                projectsModel.append({ name:"SciPy", description: catalog.i18nc("@label", "Support library for scientific computing"), license: "BSD-new", url: "https://www.scipy.org/" });
                 projectsModel.append({ name:"NumPy", description: catalog.i18nc("@label", "Support library for faster math"), license: "BSD", url: "http://www.numpy.org/" });
                 projectsModel.append({ name:"NumPy-STL", description: catalog.i18nc("@label", "Support library for handling STL files"), license: "BSD", url: "https://github.com/WoLpH/numpy-stl" });
                 projectsModel.append({ name:"PySerial", description: catalog.i18nc("@label", "Serial communication library"), license: "Python", url: "http://pyserial.sourceforge.net/" });

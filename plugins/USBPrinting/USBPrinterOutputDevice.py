@@ -970,6 +970,8 @@ class USBPrinterOutputDevice(PrinterOutputDevice):
         self._sendCommand("M140 S0")
         self._sendCommand("M104 S0")
         self._sendCommand("M107")
+        self.homeHead()
+        self.homeBed()
         self._sendCommand("M84")
         Application.getInstance().showPrintMonitor.emit(False)
 

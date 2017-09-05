@@ -5,7 +5,7 @@ import os.path
 
 from typing import Any, Optional
 
-from PyQt5.QtCore import pyqtProperty, pyqtSignal
+from PyQt5.QtCore import pyqtProperty, pyqtSignal, QObject
 from UM.FlameProfiler import pyqtSlot
 
 from UM.Decorators import override
@@ -46,6 +46,9 @@ class CuraContainerStack(ContainerStack):
         self._containers = [self._empty_instance_container for i in range(len(_ContainerIndexes.IndexTypeMap))]
 
         self.containersChanged.connect(self._onContainersChanged)
+
+        import cura.CuraApplication #Here to prevent circular imports.
+        self.addMetaDataEntry("setting_version", cura.CuraApplication.CuraApplication.SettingVersion)
 
     # This is emitted whenever the containersChanged signal from the ContainerStack base class is emitted.
     pyqtContainersChanged = pyqtSignal()
@@ -250,7 +253,7 @@ class CuraContainerStack(ContainerStack):
     ##  Get the definition container.
     #
     #   \return The definition container. Should always be a valid container, but can be equal to the empty InstanceContainer.
-    @pyqtProperty(DefinitionContainer, fset = setDefinition, notify = pyqtContainersChanged)
+    @pyqtProperty(QObject, fset = setDefinition, notify = pyqtContainersChanged)
     def definition(self) -> DefinitionContainer:
         return self._containers[_ContainerIndexes.Definition]
 
@@ -429,6 +432,7 @@ class CuraContainerStack(ContainerStack):
     #   - If the machine definition has a metadata entry "has_machine_materials", the definition of the material should
     #     be the same as the machine definition for this stack. Otherwise, the definition should be "fdmprinter".
     #   - The container should have a metadata entry "type" with value "material".
+    #   - The material should have an approximate diameter that matches the machine
     #   - If the machine definition has a metadata entry "has_variants" and set to True, the "variant" metadata entry of
     #     the material should be the same as the ID of the variant in the stack. Only applies if "has_machine_materials" is also True.
     #   - If the stack currently has a material set, try to find a material that matches the current material by name.
@@ -456,6 +460,9 @@ class CuraContainerStack(ContainerStack):
             preferred_material = definition.getMetaDataEntry("preferred_material")
             if preferred_material:
                 search_criteria["id"] = preferred_material
+
+        approximate_material_diameter = str(round(self.getProperty("material_diameter", "value")))
+        search_criteria["approximate_diameter"] = approximate_material_diameter
 
         materials = ContainerRegistry.getInstance().findInstanceContainers(**search_criteria)
         if not materials:

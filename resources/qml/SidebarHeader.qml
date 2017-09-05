@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Ultimaker B.V.
+// Copyright (c) 2017 Ultimaker B.V.
 // Cura is released under the terms of the AGPLv3 or higher.
 
 import QtQuick 2.2
@@ -158,7 +158,7 @@ Column
         visible: !extruderSelectionRow.visible
     }
 
-    Row
+    Item
     {
         id: categoryRow
 
@@ -210,7 +210,7 @@ Column
     Row
     {
         id: variantRow
-
+        
         height: UM.Theme.getSize("sidebar_setup").height
         visible: (Cura.MachineManager.hasVariants || Cura.MachineManager.hasMaterials) && !sidebar.monitoringPrint && !sidebar.hideSettings
 
@@ -227,6 +227,9 @@ Column
         Text
         {
             id: variantLabel
+
+            anchors.verticalCenter: parent.verticalCenter
+            
             text:
             {
                 var label;
@@ -245,7 +248,6 @@ Column
                 return "%1:".arg(label)
             }
 
-            anchors.verticalCenter: parent.verticalCenter
             width: parent.width * 0.45 - UM.Theme.getSize("default_margin").width*3 - infoButton.width
             font: UM.Theme.getFont("default");
             color: UM.Theme.getColor("text");
@@ -280,7 +282,9 @@ Column
 
         Item
         {
+            id: materialVariantContainer
             anchors.verticalCenter: parent.verticalCenter
+            anchors.right: parent.right
 
             width: parent.width * 0.55 + UM.Theme.getSize("default_margin").width
             height: UM.Theme.getSize("setting_control").height

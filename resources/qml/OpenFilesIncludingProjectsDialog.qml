@@ -17,8 +17,8 @@ UM.Dialog
     id: base
 
     title: catalog.i18nc("@title:window", "Open file(s)")
-    width: 420 * Screen.devicePixelRatio
-    height: 170 * Screen.devicePixelRatio
+    width: 420
+    height: 170
 
     maximumHeight: height
     maximumWidth: width
@@ -52,14 +52,14 @@ UM.Dialog
     Column
     {
         anchors.fill: parent
-        anchors.leftMargin: 20 * Screen.devicePixelRatio
-        anchors.rightMargin: 20 * Screen.devicePixelRatio
-        anchors.bottomMargin: 20 * Screen.devicePixelRatio
+        anchors.leftMargin: 20
+        anchors.rightMargin: 20
+        anchors.bottomMargin: 20
         anchors.left: parent.left
         anchors.right: parent.right
-        spacing: 10 * Screen.devicePixelRatio
+        spacing: 10
 
-        Text
+        Label
         {
             text: catalog.i18nc("@text:window", "We have found one or more project file(s) within the files you have selected. You can open only one project file at a time. We suggest to only import models from those files. Would you like to proceed?")
             anchors.left: parent.left

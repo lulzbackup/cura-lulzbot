@@ -53,7 +53,7 @@ Item
         id: infillCellRight
 
         height: childrenRect.height;
-        width: base.width * .5
+        width: base.width * .55
 
         spacing: UM.Theme.getSize("default_margin").width
 
@@ -65,10 +65,10 @@ Item
             id: infillListView
             property int activeIndex:
             {
-                var density = parseInt(infillDensity.properties.value);
-                var steps = parseInt(infillSteps.properties.value);
                 for(var i = 0; i < infillModel.count; ++i)
                 {
+                    var density = parseInt(infillDensity.properties.value);
+                    var steps = parseInt(infillSteps.properties.value);
                     if(density > infillModel.get(i).percentageMin && density <= infillModel.get(i).percentageMax && steps > infillModel.get(i).stepsMin && steps <= infillModel.get(i).stepsMax)
                     {
                         return i;
@@ -169,6 +169,10 @@ Item
                 Text
                 {
                     id: infillLabel
+                    width: (infillCellRight.width - ((infillModel.count - 1)  * UM.Theme.getSize("default_margin").width)) / (infillModel.count);
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+                    wrapMode: Text.WordWrap
                     font: UM.Theme.getFont("default")
                     anchors.top: infillIconLining.bottom
                     anchors.horizontalCenter: infillIconLining.horizontalCenter
@@ -412,6 +416,7 @@ Item
             text: catalog.i18nc("@label", "Build Plate Adhesion");
             font: UM.Theme.getFont("default");
             color: UM.Theme.getColor("text");
+            elide: Text.ElideRight
         }
 
         CheckBox
@@ -517,6 +522,41 @@ Item
         }
     }
 */
+
+    UM.SettingPropertyProvider
+    {
+        id: infillExtruderNumber
+
+        containerStackId: Cura.MachineManager.activeStackId
+        key: "infill_extruder_nr"
+        watchedProperties: [ "value" ]
+        storeIndex: 0
+    }
+
+    Binding
+    {
+        target: infillDensity
+        property: "containerStackId"
+        value:
+        {
+            var activeMachineId = Cura.MachineManager.activeMachineId;
+            if (machineExtruderCount.properties.value > 1)
+            {
+                var infillExtruderNr = parseInt(infillExtruderNumber.properties.value);
+                if (infillExtruderNr >= 0)
+                {
+                    activeMachineId = ExtruderManager.extruderIds[infillExtruderNumber.properties.value];
+                }
+                else if (ExtruderManager.activeExtruderStackId)
+                {
+                    activeMachineId = ExtruderManager.activeExtruderStackId;
+                }
+            }
+
+            infillSteps.containerStackId = activeMachineId;
+            return activeMachineId;
+        }
+    }
 
     UM.SettingPropertyProvider
     {

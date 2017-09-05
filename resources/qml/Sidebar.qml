@@ -15,23 +15,15 @@ Rectangle
     id: base;
 
     property int currentModeIndex;
-    property bool monitoringPrint: false;  // When adding more "tabs", one want to replace this bool with a ListModel
     property bool hideSettings: PrintInformation.preSliced
-    Connections
-    {
-        target: Printer
-        onShowPrintMonitor:
-        {
-            base.monitoringPrint = show;
-            showSettings.checked = !show;
-            showMonitor.checked = show;
-        }
-    }
 
     // Is there an output device for this printer?
     property bool printerConnected: Cura.MachineManager.printerOutputDevices.length != 0
     property bool printerAcceptsCommands: printerConnected && Cura.MachineManager.printerOutputDevices[0].acceptsCommands
+    property var connectedPrinter: Cura.MachineManager.printerOutputDevices.length >= 1 ? Cura.MachineManager.printerOutputDevices[0] : null
     property int backendState: UM.Backend.state;
+
+    property bool monitoringPrint: false
 
     color: UM.Theme.getColor("sidebar")
     UM.I18nCatalog { id: catalog; name:"cura"}
@@ -87,7 +79,6 @@ Rectangle
             wheel.accepted = true;
         }
     }
-
     // Printer selection and mode selection buttons for changing between Setting & Monitor print mode
     Rectangle
     {
@@ -392,8 +383,6 @@ Rectangle
         id: header
         width: parent.width
 
-        anchors.top: sidebarHeaderBar.bottom
-
         onShowTooltip: base.showTooltip(item, location, text)
         onHideTooltip: base.hideTooltip()
     }
@@ -655,12 +644,48 @@ Rectangle
 
     Loader
     {
+        id: controlItem
         anchors.bottom: footerSeparator.top
         anchors.top: headerSeparator.bottom
         anchors.left: base.left
         anchors.right: base.right
-        source: monitoringPrint ? "PrintMonitor.qml": "SidebarContents.qml"
-   }
+        sourceComponent:
+        {
+            if(monitoringPrint && connectedPrinter != null)
+            {
+                if(connectedPrinter.controlItem != null)
+                {
+                    return connectedPrinter.controlItem
+                }
+            }
+            return null
+        }
+    }
+
+    Loader
+    {
+        anchors.bottom: footerSeparator.top
+        anchors.top: headerSeparator.bottom
+        anchors.left: base.left
+        anchors.right: base.right
+        source:
+        {
+            if(controlItem.sourceComponent == null)
+            {
+                if(monitoringPrint)
+                {
+                    return "PrintMonitor.qml"
+                } else
+                {
+                    return "SidebarContents.qml"
+                }
+            }
+            else
+            {
+                return ""
+            }
+        }
+    }
 
     Rectangle
     {

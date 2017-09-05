@@ -1,5 +1,5 @@
-// Copyright (c) 2016 Ultimaker B.V.
-// Cura is released under the terms of the AGPLv3 or higher.
+//Copyright (c) 2017 Ultimaker B.V.
+//Cura is released under the terms of the AGPLv3 or higher.
 
 import QtQuick 2.1
 import QtQuick.Controls 1.1
@@ -20,11 +20,11 @@ UM.ManagementPage
         objectList.positionViewAtBeginning();
     }
 
-    model: UM.InstanceContainersModel
+    model: Cura.MaterialsModel
     {
         filter:
         {
-            var result = { "type": "material", "approximate_diameter": Math.round(materialDiameterProvider.properties.value) }
+            var result = { "type": "material", "approximate_diameter": Math.round(materialDiameterProvider.properties.value).toString() }
             if(Cura.MachineManager.filterMaterialsByMachine)
             {
                 result.definition = Cura.MachineManager.activeQualityDefinitionId;
@@ -53,21 +53,21 @@ UM.ManagementPage
 
         Row
         {
-            spacing: UM.Theme.getSize("default_margin").width / 2;
-            anchors.left: parent.left;
-            anchors.leftMargin: UM.Theme.getSize("default_margin").width;
-            anchors.right: parent.right;
+            spacing: (UM.Theme.getSize("default_margin").width / 2) | 0
+            anchors.left: parent.left
+            anchors.leftMargin: UM.Theme.getSize("default_margin").width
+            anchors.right: parent.right
             Rectangle
             {
-                width: parent.height * 0.8
-                height: parent.height * 0.8
+                width: (parent.height * 0.8) | 0
+                height: (parent.height * 0.8) | 0
                 color: model.metadata.color_code
                 border.color: isCurrentItem ? palette.highlightedText : palette.text;
                 anchors.verticalCenter: parent.verticalCenter
             }
             Label
             {
-                width: parent.width * 0.3
+                width: (parent.width * 0.3) | 0
                 text: model.metadata.material
                 elide: Text.ElideRight
                 font.italic: model.id == activeId
@@ -152,6 +152,7 @@ UM.ManagementPage
             enabled: base.currentItem != null && base.currentItem.id != Cura.MachineManager.activeMaterialId && Cura.MachineManager.hasMaterials
             onClicked:
             {
+                forceActiveFocus();
                 Cura.MachineManager.setActiveMaterial(base.currentItem.id)
                 currentItem = base.model.getItem(base.objectList.currentIndex) // Refresh the current item.
             }
@@ -162,6 +163,7 @@ UM.ManagementPage
             iconName: "list-add"
             onClicked:
             {
+                forceActiveFocus();
                 var material_id = Cura.ContainerManager.createMaterial()
                 if(material_id == "")
                 {
@@ -181,6 +183,7 @@ UM.ManagementPage
             enabled: base.currentItem != null
             onClicked:
             {
+                forceActiveFocus();
                 var base_file = Cura.ContainerManager.getContainerMetaDataEntry(base.currentItem.id, "base_file")
                 // We need to copy the base container instead of the specific variant.
                 var material_id = base_file == "" ? Cura.ContainerManager.duplicateMaterial(base.currentItem.id): Cura.ContainerManager.duplicateMaterial(base_file)
@@ -202,20 +205,32 @@ UM.ManagementPage
             text: catalog.i18nc("@action:button", "Remove");
             iconName: "list-remove";
             enabled: base.currentItem != null && !base.currentItem.readOnly && !Cura.ContainerManager.isContainerUsed(base.currentItem.id)
-            onClicked: confirmDialog.open()
+            onClicked:
+            {
+                forceActiveFocus();
+                confirmDialog.open();
+            }
         },
         Button
         {
             text: catalog.i18nc("@action:button", "Import");
             iconName: "document-import";
-            onClicked: importDialog.open();
+            onClicked:
+            {
+                forceActiveFocus();
+                importDialog.open();
+            }
             visible: true;
         },
         Button
         {
             text: catalog.i18nc("@action:button", "Export")
             iconName: "document-export"
-            onClicked: exportDialog.open()
+            onClicked:
+            {
+                forceActiveFocus();
+                exportDialog.open();
+            }
             enabled: currentItem != null
         }
     ]
@@ -268,6 +283,7 @@ UM.ManagementPage
 
             property real density: 0.0;
             property real diameter: 0.0;
+            property string approximate_diameter: "0";
 
             property real spool_cost: 0.0;
             property real spool_weight: 0.0;
@@ -414,11 +430,13 @@ UM.ManagementPage
             {
                 materialProperties.density = currentItem.metadata.properties.density ? currentItem.metadata.properties.density : 0.0;
                 materialProperties.diameter = currentItem.metadata.properties.diameter ? currentItem.metadata.properties.diameter : 0.0;
+                materialProperties.approximate_diameter = currentItem.metadata.approximate_diameter ? currentItem.metadata.approximate_diameter : "0";
             }
             else
             {
                 materialProperties.density = 0.0;
                 materialProperties.diameter = 0.0;
+                materialProperties.approximate_diameter = "0";
             }
 
         }
