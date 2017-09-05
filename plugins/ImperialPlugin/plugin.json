@@ -1,0 +1,8 @@
+{
+    "name": "Imperial Plugin",
+    "author": "Jaime van Kessel",
+    "version": "1.0.0",
+    "description": "",
+    "api": 4,
+    "i18n-catalog": "cura"
+}
