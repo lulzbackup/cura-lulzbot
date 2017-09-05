@@ -158,7 +158,7 @@ Column
         visible: !extruderSelectionRow.visible
     }
 
-    Item
+    Row
     {
         id: categoryRow
 
@@ -284,7 +284,6 @@ Column
         {
             id: materialVariantContainer
             anchors.verticalCenter: parent.verticalCenter
-            anchors.right: parent.right
 
             width: parent.width * 0.55 + UM.Theme.getSize("default_margin").width
             height: UM.Theme.getSize("setting_control").height
