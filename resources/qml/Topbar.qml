@@ -212,5 +212,58 @@ Rectangle
         }
 
         menu: PrinterMenu { }
+        Row
+        {
+            anchors.fill: parent
+            layoutDirection: Qt.RightToLeft
+            anchors.rightMargin: UM.Theme.getSize("default_margin").width * 3
+            spacing: 2
+
+            Button
+            {
+                id: printerInfoButton
+                onClicked: Cura.MachineManager.openCurrentPrinterInfo()
+                visible: Cura.MachineManager.currentPrinterHasInfo
+
+                width: UM.Theme.getSize("setting_control").height
+                height: UM.Theme.getSize("setting_control").height
+                anchors.verticalCenter: parent.verticalCenter
+
+                style: UM.Theme.styles.sidebar_header_button
+
+                tooltip: catalog.i18nc("@tooltip", "Printer Info")
+
+                UM.RecolorImage
+                {
+                    anchors.fill: parent
+
+                    source: UM.Theme.getIcon("notice")
+                    color: UM.Theme.getColor("text")
+                }
+            }
+
+            Button
+            {
+                id: toolheadInfoButton
+                onClicked: Cura.MachineManager.openCurrentToolheadInfo()
+                visible: Cura.MachineManager.currentToolheadHasInfo
+
+                width: UM.Theme.getSize("setting_control").height
+                height: UM.Theme.getSize("setting_control").height
+                anchors.verticalCenter: parent.verticalCenter
+
+                style: UM.Theme.styles.sidebar_header_button
+
+                tooltip: catalog.i18nc("@tooltip", "Toolhead Info")
+
+                UM.RecolorImage
+                {
+                    anchors.fill: parent
+
+                    source: UM.Theme.getIcon("notice")
+                    color: UM.Theme.getColor("text")
+                }
+            }
+        }
     }
 }
