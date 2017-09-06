@@ -14,6 +14,16 @@ import Cura 1.0 as Cura
 Item
 {
     id: base
+
+	x: {
+  		//return UM.Theme.getSize("layerview_menu_origin").width;
+        return Screen.desktopAvailableHeight/16;
+    }
+    y: {
+        //return UM.Theme.getSize("layerview_menu_origin").height;
+        return -Screen.desktopAvailableHeight/2 - 4*UM.Theme.getSize("default_margin").height;
+    }
+
     width: {
         if (UM.LayerView.compatibilityMode) {
             return UM.Theme.getSize("layerview_menu_size_compatibility").width;
@@ -28,6 +38,25 @@ Item
             return UM.Theme.getSize("layerview_menu_size").height + UM.LayerView.extruderCount * (UM.Theme.getSize("layerview_row").height + UM.Theme.getSize("layerview_row_spacing").height)
         }
     }
+
+    MouseArea {
+        id: dragArea
+        anchors.left: parent.left
+        anchors.top: parent.top
+        width: parent.width - 50
+        height: 50
+        drag.axis: Drag.XAndYAxis
+
+        onPressed: {
+            layerViewMenu.opacity = 0.5
+            dragArea.drag.target = base
+        }
+
+        onReleased: {
+            layerViewMenu.opacity = 1.0
+        }
+	}
+
     property var buttonTarget: {
         var force_binding = parent.y; // ensure this gets reevaluated when the panel moves
         return base.mapFromItem(parent.parent, parent.buttonTarget.x, parent.buttonTarget.y);
