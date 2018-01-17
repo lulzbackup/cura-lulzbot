@@ -770,8 +770,8 @@ class ConnectThread:
         if self._parent.eeprom_update:
             self._sendCommand("M502")
             self._sendCommand("M500")
-            Logger.log("d", "Tried to update eeprom")
-            self.eprom_update = False
+            Logger.log("d", "Tried to update EEPROM")
+            self._parent.eeprom_update = False
 
         self._parent._print_thread.start()  # Start listening
         Logger.log("i", "Established printer connection on port %s" % self._parent._serial_port)
