@@ -132,7 +132,7 @@ Item
             CheckBoxStyle
             {
                 label:
-                    Text
+                    Label
                     {
                         color: UM.Theme.getColor("setting_control_text")
                         text: "Save Z-Offset to EEPROM"

@@ -137,7 +137,7 @@ Item {
         }
     }
 
-    Text
+    Label
     {
         id: boundingSpec
         anchors.top: jobNameRow.bottom
@@ -218,7 +218,7 @@ Item {
                 anchors.rightMargin: UM.Theme.getSize("default_margin").width
                 anchors.verticalCenter: parent.verticalCenter
 
-                Text
+                Label
                 {
                     id: timeSpec
                     anchors.left: parent.left
@@ -246,7 +246,7 @@ Item {
                 source: UM.Theme.getIcon("category_material")
                 isBorderVisible: true
             }
-            Text
+            Label
             {
                 id: lengthSpec
                 anchors.right: parent.right

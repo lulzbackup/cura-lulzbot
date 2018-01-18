@@ -127,7 +127,7 @@ Column
                             border.color: UM.Theme.getColor("setting_control_border")
                         }
 
-                        Text
+                        Label
                         {
                             anchors.verticalCenter: parent.verticalCenter
                             anchors.left: swatch.visible ? swatch.right : parent.left
@@ -224,7 +224,7 @@ Column
 
         spacing: UM.Theme.getSize("default_margin").width
 
-        Text
+        Label
         {
             id: variantLabel
             text:
@@ -394,7 +394,7 @@ Column
         }
 
 
-        Text
+        Label
         {
             id: globalProfileLabel
             text: catalog.i18nc("@label","Profile:");
