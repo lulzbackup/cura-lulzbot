@@ -1082,12 +1082,13 @@ class PrintThread:
                 break  # None is only returned when something went wrong. Stop listening
 
             if b"PROBE FAIL CLEAN NOZZLE" in line:
-               self._parent.errorFromPrinter.emit( "Wipe nozzle failed." )
-               Logger.log("d", "---------------PROBE FAIL CLEAN NOZZLE" )
-               self._parent._error_message = Message(catalog.i18nc("@info:status", "Wipe nozzle failed."))
-               self._parent._error_message.show()
-               self._parent.close()
-               break
+                self._parent.errorFromPrinter.emit( "Wipe nozzle failed." )
+                Logger.log("d", "---------------PROBE FAIL CLEAN NOZZLE" )
+                self._parent._error_message = Message(catalog.i18nc("@info:status", "Wipe nozzle failed, clean nozzle and reconnect printer."))
+                self._parent._error_message.show()
+                self._parent._setErrorState("Wipe nozzle failed")
+                self._parent.close()
+                break
 
             if b"Z Offset " in line:
                 value = line.split(b":")
