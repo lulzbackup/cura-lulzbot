@@ -1,0 +1,53 @@
+<?xml version='1.0' encoding='utf-8'?>
+<fdmmaterial version="1.3" xmlns="http://www.ultimaker.com/material">
+  <metadata>
+    <name>
+      <brand>Generic</brand>
+      <material>PETg</material>
+      <color>Generic</color>
+      <label>PETg (IC3D)</label>
+      <category>Intermediate</category>
+    </name>
+    <color_code>#3465a4</color_code>
+    <GUID>7206e2c0-e852-4cd4-90d9-de9abf8a186e</GUID>
+  </metadata>
+  <properties>
+    <diameter>2.85</diameter>
+    <density>1.2</density>
+  </properties>
+  <settings>
+    <setting key="print temperature">230</setting>
+    <setting key="heated bed temperature">65</setting>
+    <setting key="standby temperature">175</setting>
+    <setting key="wipe temperature">170</setting>
+    <setting key="part removal temperature">50</setting>
+    <setting key="soften temperature">170</setting>
+    <setting key="probe temperature">170</setting>
+    <machine>
+      <machine_identifier manufacturer="Aleph Objects, Inc." product="lulzbot_taz5_dual_v3" />
+      <metadata key="category">Experimental</metadata>
+    </machine>
+    <machine>
+      <machine_identifier manufacturer="Aleph Objects, Inc." product="lulzbot_taz5" />
+    </machine>
+    <machine>
+      <machine_identifier manufacturer="Aleph Objects, Inc." product="lulzbot_taz6" />
+    </machine>
+    <machine>
+      <machine_identifier manufacturer="Aleph Objects, Inc." product="lulzbot_taz6_aerostruder" />
+    </machine>
+    <machine>
+      <machine_identifier manufacturer="Aleph Objects, Inc." product="lulzbot_taz5_aerostruder" />
+    </machine>
+    <machine>
+      <machine_identifier manufacturer="Aleph Objects, Inc." product="lulzbot_taz6_dual_v3" />
+      <metadata key="category">Experimental</metadata>
+    </machine>
+    <machine>
+      <machine_identifier manufacturer="Aleph Objects, Inc." product="lulzbot_mini_aerostruder" />
+    </machine>
+    <machine>
+      <machine_identifier manufacturer="Aleph Objects, Inc." product="lulzbot_mini" />
+    </machine>
+  </settings>
+</fdmmaterial>
