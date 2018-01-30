@@ -31,6 +31,8 @@ catalog = i18nCatalog("cura")
 
 from typing import TYPE_CHECKING, Optional
 
+from UM.Resources import Resources
+
 if TYPE_CHECKING:
     from UM.Settings.DefinitionContainer import DefinitionContainer
     from cura.Settings.CuraContainerStack import CuraContainerStack
@@ -394,6 +396,9 @@ class MachineManager(QObject):
         new_stack = CuraStackBuilder.createMachine(name, definition_id)
         if new_stack:
             Application.getInstance().setGlobalContainerStack(new_stack)
+            if Preferences.getInstance().getValue("general/is_first_run"):
+                Application.getInstance().openFile(os.path.join(Resources.getPath(Resources.Meshes), "rocktopus.stl"))
+                Preferences.getInstance().setValue("general/is_first_run", False)
         else:
             Logger.log("w", "Failed creating a new machine!")
 

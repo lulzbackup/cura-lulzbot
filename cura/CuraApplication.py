@@ -309,6 +309,8 @@ class CuraApplication(QtApplication):
 
         Preferences.getInstance().addPreference("general/zoffsetSaveToFlashEnabled", False)
 
+        Preferences.getInstance().addPreference("general/is_first_run", True)
+
         for key in [
             "dialog_load_path",  # dialog_save_path is in LocalFileOutputDevicePlugin
             "dialog_profile_path",
@@ -721,7 +723,6 @@ class CuraApplication(QtApplication):
 
         if self._engine.rootObjects:
             self.closeSplash()
-
             for file in self.getCommandLineOption("file", []):
                 self._openFile(file)
             for file_name in self._open_file_queue: #Open all the files that were queued up while plug-ins were loading.
@@ -1343,6 +1344,9 @@ class CuraApplication(QtApplication):
             job._node.setMeshData(mesh_data)
         else:
             Logger.log("w", "Could not find a mesh in reloaded node.")
+
+    def openFile(self, filename):
+        self._openFile(filename)
 
     def _openFile(self, filename):
         self.readLocalFile(QUrl.fromLocalFile(filename))
