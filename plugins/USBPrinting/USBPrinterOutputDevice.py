@@ -222,7 +222,7 @@ class USBPrinterOutputDevice(PrinterOutputDevice):
         self._is_printing = False
         self._is_paused = False
         self._updateJobState("ready")
-        self.setTimeElapsed(0)
+        #self.setTimeElapsed(0)
         self.setTimeTotal(0)
 
     ##  Get the serial port string of this connection.
