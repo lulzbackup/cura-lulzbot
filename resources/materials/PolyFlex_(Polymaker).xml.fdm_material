@@ -11,7 +11,7 @@
     <version>1</version>
     <color_code>#B4CDCD</color_code>
     <info_link>https://www.lulzbot.com/store/filament/polyflex</info_link>
-    <adhesion_info>Use glue stick.</adhesion_info>
+    <adhesion_info>Use glue stick with PEI or print directly on glass.</adhesion_info>
   </metadata>
   <properties>
     <density>1.21</density>

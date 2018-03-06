@@ -11,6 +11,7 @@
     <version>1</version>
     <color_code>#CD919E</color_code>
     <info_link>https://www.lulzbot.com/store/filament/pc-abs-alloy</info_link>
+    <adhesion_info>Use glue stick.</adhesion_info>
   </metadata>
   <properties>
     <density>1.12</density>

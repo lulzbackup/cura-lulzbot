@@ -11,6 +11,7 @@
     <version>1</version>
     <color_code>#00F5FF</color_code>
     <info_link>https://www.lulzbot.com/store/filament/polycarbonate</info_link>
+    <adhesion_info>Use glue stick.</adhesion_info>
   </metadata>
   <properties>
     <density>1.1</density>
