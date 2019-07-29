@@ -1,0 +1,33 @@
+{
+    "id": "lulzbot_taz5_goldenrod",
+    "name": "LulzBot TAZ 5 | HE | 0.5 mm",
+    "inherits": "lulzbot_taz5",
+    "version": 2,
+    "metadata":
+    {
+        "priority": "03",
+        "machine_extruder_trains":
+        {
+            "0": "lulzbot_taz5_goldenrod_extruder"
+        },
+        "type": "machine",
+        "visible": true,
+        "user_toolhead_name": "HE | 0.5 mm",
+        "firmware_toolhead_name": "HardenedExtruder"
+    },
+    "overrides":
+    {
+        "machine_name":
+        {
+            "default_value": "LulzBot TAZ 5 | HE | 0.5 mm"
+        },
+        "machine_start_gcode":
+        {
+            "default_value_from_file": "lulzbot_taz5_goldenrod_start"
+        },
+        "machine_end_gcode":
+        {
+            "default_value_from_file": "lulzbot_taz5_end"
+        }
+    }
+}

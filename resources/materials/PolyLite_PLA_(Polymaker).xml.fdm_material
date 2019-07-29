@@ -88,6 +88,9 @@
       <machine_identifier product="lulzbot_taz5"/>
     </machine>
     <machine>
+      <machine_identifier product="lulzbot_taz5_goldenrod"/>
+    </machine>
+    <machine>
       <machine_identifier product="lulzbot_taz5_achemon"/>
     </machine>
     <machine>
@@ -105,7 +108,7 @@
     <machine>
       <machine_identifier product="lulzbot_hibiscus"/>
     </machine>
-     <machine>
+    <machine>
       <machine_identifier product="lulzbot_hibiscus_goldenrod"/>
     </machine>
     <machine>

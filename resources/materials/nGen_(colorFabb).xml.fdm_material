@@ -67,6 +67,9 @@
       <machine_identifier product="lulzbot_taz5"/>
     </machine>
     <machine>
+      <machine_identifier product="lulzbot_taz5_goldenrod"/>
+    </machine>
+    <machine>
       <machine_identifier product="lulzbot_taz5_cecropia"/>
     </machine>
     <machine>
