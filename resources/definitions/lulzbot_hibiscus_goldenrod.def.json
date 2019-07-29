@@ -1,0 +1,54 @@
+{
+    "id": "LulzBot_Hibiscus_Goldenrod",
+    "name": "LulzBot Mini 2 | HE | 0.5 mm",
+    "inherits": "lulzbot_hibiscus",
+    "version": 2,
+    "metadata":
+    {
+        "priority": "02",
+        "machine_extruder_trains":
+        {
+            "0": "lulzbot_hibiscus_goldenrod_extruder"
+        },
+        "type": "machine",
+        "platform": "lulzbot_mini.stl",
+        "platform_offset":
+        [
+            -100,
+            -11,
+            100
+        ],
+        "preferred_material": "*PolyLite_PLA*",
+        "preferred_quality": "*Standard*",
+        "file_formats": "text/x-gcode",
+        "visible": true,
+        "printer_info_link": "https://www.lulzbot.com/store/printers/",
+        "toolhead_info_link": "https://www.lulzbot.com/store/tool-heads/",
+        "base_machine": "lulzbot_hibiscus",
+        "firmware_toolhead_name": "HardenedExtruder",
+        "user_toolhead_name": "HE | 0.5 mm"
+    },
+    "overrides":
+    {
+        "machine_start_gcode":
+        {
+            "default_value_from_file": "lulzbot_hibiscus_goldenrod_start"
+        },
+        "machine_end_gcode":
+        {
+            "default_value_from_file": "lulzbot_hibiscus_end"
+        },
+        "machine_wipe_gcode":
+        {
+            "default_value_from_file": "lulzbot_hibiscus_wipe"
+        },
+        "machine_level_x_axis_gcode":
+        {
+            "default_value_from_file": "lulzbot_hibiscus_level_x_axis"
+        },
+        "firmware_machine_type":
+        {
+            "default_value": "LulzBot Hibiscus"
+        }
+    }
+}
