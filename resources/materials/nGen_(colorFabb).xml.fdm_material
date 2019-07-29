@@ -60,6 +60,9 @@
     <machine>
       <machine_identifier product="lulzbot_mini_achemon"/>
     </machine>
+     <machine>
+      <machine_identifier product="lulzbot_mini_goldenrod"/>
+    </machine>
     <machine>
       <machine_identifier product="lulzbot_taz5"/>
     </machine>

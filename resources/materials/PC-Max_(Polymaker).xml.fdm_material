@@ -74,6 +74,9 @@
     <machine>
       <machine_identifier product="lulzbot_mini"/>
     </machine>
+     <machine>
+      <machine_identifier product="lulzbot_mini_goldenrod"/>
+    </machine>
     <machine>
       <machine_identifier product="lulzbot_taz5_aerostruder"/>
     </machine>
