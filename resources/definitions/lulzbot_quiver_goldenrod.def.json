@@ -1,0 +1,70 @@
+{
+    "id": "lulzbot_quiver_goldenrod",
+    "name": "LulzBot TAZ Pro | HE | 0.5mm",
+    "inherits": "lulzbot_quiver_base",
+    "version": 2,
+    "metadata":
+    {
+        "type": "machine",
+        "visible": true,
+        "priority": "02",
+        "machine_extruder_trains":
+        {
+            "0": "lulzbot_quiver_goldenrod_extruder"
+        },
+        "platform": "quiver_bed.stl",
+        "platform_offset":
+        [
+            0,
+            -25,
+            0
+        ],
+        "category": "LulzBot",
+        "firmware_toolhead_name": "HardenedExtruder",
+        "base_machine": "LulzBot TAZ Pro",
+        "base_machine_name": "LulzBot TAZ Pro",
+        "preferred_material": "*PolyLite_PLA*",
+        "user_toolhead_name": "HE | 0.5mm",
+        "default_category": "All"
+    },
+    "overrides":
+    {
+        "machine_name":
+        {
+            "default_value": "LulzBot Pro | HE | 0.5mm"
+        },
+        "machine_start_gcode":
+        {
+            "default_value_from_file": "lulzbot_quiver_goldenrod_start"
+        },
+        "machine_end_gcode":
+        {
+            "default_value_from_file": "lulzbot_quiver_goldenrod_end"
+        },
+        "machine_level_x_axis_gcode":
+        {
+            "default_value_from_file": "lulzbot_quiver_level_x_axis"
+        },
+        "machine_extruder_count": {
+            "default_value": 1
+        },
+        "machine_width":
+        {
+            "default_value": 282
+        },
+        "machine_depth":
+        {
+            "default_value": 282
+        },
+        "machine_height":
+        {
+            "default_value": 286
+        },
+        "machine_wipe_gcode":
+        {
+            "default_value_from_file": "lulzbot_quiver_goldenrod_wipe"
+        },
+        "layer_start_x": { "value": "100" },
+        "layer_start_y": { "value": "100" }
+    }
+}

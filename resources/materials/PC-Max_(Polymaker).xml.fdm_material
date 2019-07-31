@@ -96,10 +96,16 @@
       <machine_identifier product="lulzbot_quiver_cecropia"/>
     </machine>
     <machine>
+      <machine_identifier product="lulzbot_quiver_goldenrod"/>
+    </machine>
+    <machine>
       <machine_identifier product="lulzbot_mini_cecropia"/>
     </machine>
     <machine>
        <machine_identifier product="lulzbot_taz6_twoolhead"/>
+    </machine>
+    <machine>
+      <machine_identifier product="lulzbot_taz6_goldenrod"/>
     </machine>
     <machine>
       <machine_identifier product="lulzbot_taz5_twoolhead"/>

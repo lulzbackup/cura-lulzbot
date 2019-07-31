@@ -55,6 +55,9 @@
       <machine_identifier product="lulzbot_taz6_aerostruder"/>
     </machine>
     <machine>
+      <machine_identifier product="lulzbot_taz6_goldenrod"/>
+    </machine>
+    <machine>
       <machine_identifier product="lulzbot_mini"/>
     </machine>
     <machine>
@@ -101,6 +104,9 @@
     </machine>
     <machine>
       <machine_identifier product="lulzbot_quiver_achemon"/>
+    </machine>
+    <machine>
+      <machine_identifier product="lulzbot_quiver_goldenrod"/>
     </machine>
     <machine>
       <machine_identifier product="lulzbot_mini_cecropia"/>

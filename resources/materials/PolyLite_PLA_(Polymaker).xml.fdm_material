@@ -57,6 +57,9 @@
       <machine_identifier product="lulzbot_taz6_achemon"/>
     </machine>
     <machine>
+      <machine_identifier product="lulzbot_taz6_goldenrod"/>
+    </machine>
+    <machine>
       <machine_identifier product="lulzbot_mini_achemon"/>
     </machine>
     <machine>
@@ -119,6 +122,9 @@
     </machine>
     <machine>
       <machine_identifier product="lulzbot_quiver_achemon"/>
+    </machine>
+    <machine>
+      <machine_identifier product="lulzbot_quiver_goldenrod"/>
     </machine>
     <machine>
       <machine_identifier product="lulzbot_quiver_banded_tiger"/>

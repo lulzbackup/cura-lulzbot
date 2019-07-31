@@ -111,6 +111,9 @@
       <machine_identifier product="lulzbot_quiver_cecropia"/>
     </machine>
     <machine>
+      <machine_identifier product="lulzbot_quiver_goldenrod"/>
+    </machine>
+    <machine>
       <machine_identifier product="lulzbot_quiver_achemon"/>
     </machine>
     <machine>
@@ -124,6 +127,9 @@
     </machine>
     <machine>
       <machine_identifier product="lulzbot_taz6_achemon"/>
+    </machine>
+    <machine>
+      <machine_identifier product="lulzbot_taz6_goldenrod"/>
     </machine>
     <machine>
       <machine_identifier product="lulzbot_taz5_twoolhead"/>

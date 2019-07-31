@@ -73,6 +73,12 @@
       <machine_identifier product="lulzbot_taz5_goldenrod"/>
     </machine>
     <machine>
+      <machine_identifier product="lulzbot_taz6_goldenrod"/>
+    </machine>
+    <machine>
+      <machine_identifier product="lulzbot_quiver_goldenrod"/>
+    </machine>
+    <machine>
       <machine_identifier product="lulzbot_redgum_banded_tiger"/>
     </machine>
     <machine>
