@@ -4391,9 +4391,7 @@
                     "minimum_value": "0",
                     "enabled": "support_enable",
                     "limit_to_extruder": "support_infill_extruder_nr",
-                    "settable_per_mesh": true,
-                    "fabricate_enabled": true,
-                    "intermediate_enabled": true
+                    "settable_per_mesh": true
                 },
                 "support_interface_enable":
                 {
@@ -4767,10 +4765,10 @@
                     "enabled": "support_enable and support_use_towers",
                     "settable_per_mesh": true
                 },
-                "support_minimal_diameter":
+                "support_tower_maximum_supported_diameter":
                 {
-                    "label": "Minimum Diameter",
-                    "description": "Minimum diameter in the X/Y directions of a small area which is to be supported by a specialized support tower.",
+                    "label": "Maximum Tower-Supported Diameter",
+                    "description": "Maximum diameter in the X/Y directions of a small area which is to be supported by a specialized support tower.",
                     "unit": "mm",
                     "type": "float",
                     "default_value": 3.0,
