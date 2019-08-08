@@ -182,6 +182,10 @@
         {
             "default_value": 3
         },
+        "speed_z_hop":
+        {
+            "default_value": 3
+        },
         "machine_max_feedrate_e":
         {
             "default_value": 40
