@@ -319,7 +319,7 @@ class ExtruderManager(QObject):
                 used_extruder_stack_ids.add(self.extruderIds[str(global_stack.getProperty("support_roof_extruder_nr", "value"))])
 
         # The platform adhesion extruder. Not used if using none.
-        if global_stack.getProperty("adhesion_type", "value") != "none":
+        if global_stack.getProperty("adhesion_type", "value") != "none" or global_stack.getProperty("prime_tower_brim_enable", "value"):
             used_extruder_stack_ids.add(self.extruderIds[str(global_stack.getProperty("adhesion_extruder_nr", "value"))])
 
         try:
