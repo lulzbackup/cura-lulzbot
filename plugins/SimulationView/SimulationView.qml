@@ -48,8 +48,6 @@ Item
 
     Rectangle {
         id: layerViewMenu
-        anchors.right: parent.right
-        anchors.top: parent.top
         width: parent.width
         height: parent.height
         clip: true
@@ -60,9 +58,7 @@ Item
 
         Button {
             id: collapseButton
-            anchors.top: parent.top
             anchors.topMargin: Math.floor(UM.Theme.getSize("default_margin").height + (UM.Theme.getSize("layerview_row").height - UM.Theme.getSize("default_margin").height) / 2)
-            anchors.right: parent.right
             anchors.rightMargin: UM.Theme.getSize("default_margin").width
 
             width: UM.Theme.getSize("standard_arrow").width
@@ -102,18 +98,14 @@ Item
             property bool only_show_top_layers: UM.Preferences.getValue("view/only_show_top_layers")
             property int top_layer_count: UM.Preferences.getValue("view/top_layer_count")
 
-            anchors.top: parent.top
             anchors.topMargin: UM.Theme.getSize("default_margin").height
-            anchors.left: parent.left
             anchors.leftMargin: UM.Theme.getSize("default_margin").width
-            anchors.right: parent.right
             anchors.rightMargin: UM.Theme.getSize("default_margin").width
             spacing: UM.Theme.getSize("layerview_row_spacing").height
 
             Label
             {
                 id: layerViewTypesLabel
-                anchors.left: parent.left
                 text: catalog.i18nc("@label","Color scheme")
                 font: UM.Theme.getFont("default");
                 visible: !UM.SimulationView.compatibilityMode
@@ -149,13 +141,11 @@ Item
             ComboBox
             {
                 id: layerTypeCombobox
-                anchors.left: parent.left
                 Layout.fillWidth: true
                 Layout.preferredWidth: UM.Theme.getSize("layerview_row").width
                 model: layerViewTypes
                 visible: !UM.SimulationView.compatibilityMode
                 style: UM.Theme.styles.combobox
-                anchors.right: parent.right
 
                 onActivated:
                 {
@@ -181,7 +171,6 @@ Item
             Label
             {
                 id: compatibilityModeLabel
-                anchors.left: parent.left
                 text: catalog.i18nc("@label","Compatibility Mode")
                 font: UM.Theme.getFont("default")
                 color: UM.Theme.getColor("text")
@@ -226,7 +215,6 @@ Item
                     visible: !UM.SimulationView.compatibilityMode
                     enabled: index + 1 <= 4
                     Rectangle {
-                        anchors.verticalCenter: parent.verticalCenter
                         anchors.right: extrudersModelCheckBox.right
                         width: UM.Theme.getSize("layerview_legend_size").width
                         height: UM.Theme.getSize("layerview_legend_size").height
@@ -246,7 +234,6 @@ Item
                         elide: Text.ElideRight
                         color: UM.Theme.getColor("setting_control_text")
                         font: UM.Theme.getFont("default")
-                        anchors.verticalCenter: parent.verticalCenter
                         anchors.left: extrudersModelCheckBox.left;
                         anchors.right: extrudersModelCheckBox.right;
                         anchors.leftMargin: UM.Theme.getSize("checkbox").width + UM.Theme.getSize("default_margin").width /2
@@ -294,7 +281,6 @@ Item
                         UM.Preferences.setValue(model.preference, checked);
                     }
                     Rectangle {
-                        anchors.verticalCenter: parent.verticalCenter
                         anchors.right: legendModelCheckBox.right
                         width: UM.Theme.getSize("layerview_legend_size").width
                         height: UM.Theme.getSize("layerview_legend_size").height
@@ -313,7 +299,6 @@ Item
                         font: UM.Theme.getFont("default")
                         elide: Text.ElideRight
                         color: UM.Theme.getColor("setting_control_text")
-                        anchors.verticalCenter: parent.verticalCenter
                         anchors.left: legendModelCheckBox.left;
                         anchors.right: legendModelCheckBox.right;
                         anchors.leftMargin: UM.Theme.getSize("checkbox").width + UM.Theme.getSize("default_margin").width /2
@@ -387,12 +372,10 @@ Item
                 height: UM.Theme.getSize("layerview_row").height
                 anchors {
                     topMargin: UM.Theme.getSize("slider_layerview_margin").height
-                    horizontalCenter: parent.horizontalCenter
                 }
 
                 Label {
                     text: minText()
-                    anchors.left: parent.left
                     color: UM.Theme.getColor("setting_control_text")
                     font: UM.Theme.getFont("default")
 
@@ -413,7 +396,6 @@ Item
 
                 Label {
                     text: unitsText()
-                    anchors.horizontalCenter: parent.horizontalCenter
                     color: UM.Theme.getColor("setting_control_text")
                     font: UM.Theme.getFont("default")
 
@@ -434,7 +416,6 @@ Item
 
                 Label {
                     text: maxText()
-                    anchors.right: parent.right
                     color: UM.Theme.getColor("setting_control_text")
                     font: UM.Theme.getFont("default")
 
@@ -459,7 +440,6 @@ Item
                 // Invert values because then the bar is rotated 90 degrees
                 id: feedrateGradient
                 visible: viewSettings.show_feedrate_gradient
-                anchors.left: parent.right
                 height: parent.width
                 width: UM.Theme.getSize("layerview_row").height * 1.5
                 border.width: UM.Theme.getSize("default_lining").width
@@ -490,7 +470,6 @@ Item
                 // Invert values because then the bar is rotated 90 degrees
                 id: thicknessGradient
                 visible: viewSettings.show_thickness_gradient
-                anchors.left: parent.right
                 height: parent.width
                 width: UM.Theme.getSize("layerview_row").height * 1.5
                 border.width: UM.Theme.getSize("default_lining").width
@@ -531,7 +510,6 @@ Item
         anchors {
             top: parent.bottom
             topMargin: UM.Theme.getSize("slider_layerview_margin").height
-            left: parent.left
         }
 
         PathSlider {
@@ -540,7 +518,6 @@ Item
             height: UM.Theme.getSize("slider_handle").width
             anchors.left: playButton.right
             anchors.leftMargin: UM.Theme.getSize("default_margin").width
-            anchors.right: parent.right
             visible: !UM.SimulationView.compatibilityMode
 
             // custom properties
@@ -576,7 +553,6 @@ Item
             anchors {
                 top: !UM.SimulationView.compatibilityMode ? pathSlider.bottom : parent.top
                 topMargin: !UM.SimulationView.compatibilityMode ? UM.Theme.getSize("default_margin").height : 0
-                right: parent.right
                 rightMargin: UM.Theme.getSize("slider_layerview_margin").width
             }
 
